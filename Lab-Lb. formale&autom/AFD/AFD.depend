@@ -1,0 +1,14 @@
+# depslib dependency file v1.0
+1392896145 source:c:\users\alexandru\desktop\programming\#lb. formale&autom\afd\src\afd.cpp
+	"AFD.h"
+
+1392895786 c:\users\alexandru\desktop\programming\#lb. formale&autom\afd\include\afd.h
+	<iostream>
+	<string.h>
+	<stdlib.h>
+
+1392896145 source:c:\users\alexandru\desktop\programming\#lb. formale&autom\afd\main.cpp
+	<iostream>
+	<fstream>
+	<AFD.h>
+

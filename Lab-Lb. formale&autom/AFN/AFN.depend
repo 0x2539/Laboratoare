@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1394089848 source:c:\users\alexandru\documents\github\laboratoare\lab-lb. formale&autom\afn\main.cpp
+	<iostream>
+	"AFN.h"
+
+1394092286 c:\users\alexandru\documents\github\laboratoare\lab-lb. formale&autom\afn\afn.h
+	<iostream>
+
