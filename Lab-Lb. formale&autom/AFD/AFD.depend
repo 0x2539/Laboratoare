@@ -12,3 +12,16 @@
 	<fstream>
 	<AFD.h>
 
+1394102557 source:c:\users\alexandru\documents\github\laboratoare\lab-lb. formale&autom\afd\src\afd.cpp
+	"AFD.h"
+
+1392895786 c:\users\alexandru\documents\github\laboratoare\lab-lb. formale&autom\afd\include\afd.h
+	<iostream>
+	<string.h>
+	<stdlib.h>
+
+1394102521 source:c:\users\alexandru\documents\github\laboratoare\lab-lb. formale&autom\afd\main.cpp
+	<iostream>
+	<fstream>
+	<AFD.h>
+

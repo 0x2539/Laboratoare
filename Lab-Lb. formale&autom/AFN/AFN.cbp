@@ -32,6 +32,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="AFN.cpp" />
+		<Unit filename="AFN.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

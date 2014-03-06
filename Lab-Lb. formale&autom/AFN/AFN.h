@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-class AFN
+class AFNN
 {
 	int nrstari;
 	//starile vor fi 0, 1,..., nrstari-1
@@ -15,6 +15,9 @@ class AFN
 	//s si t sunt stari, iar c este un caracter
 	//alfabetul automatului este intreg setul de caractere ASCII
 public:
+
+    int a = 0;
+
 	int getnrstari()
 	{
 		return nrstari;

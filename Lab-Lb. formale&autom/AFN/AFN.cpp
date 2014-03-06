@@ -1,7 +1,7 @@
 #include "AFN.h"
 
 
-void AFN::setnrstari(int ns)
+void AFNN::setnrstari(int ns)
 {
 //similar functiei corespunzatoare de la programul pentru AFD
 	nrstari = ns;
@@ -23,7 +23,7 @@ void AFN::setnrstari(int ns)
 	}
 }
 
-int AFN::exectranzitie(int s, unsigned char c, int t[256])
+int AFNN::exectranzitie(int s, unsigned char c, int t[256])
 {
 //functie ajutatoare pentru scrierea functiei de recunoastere
 
@@ -46,26 +46,35 @@ int AFN::exectranzitie(int s, unsigned char c, int t[256])
     }
     return 1;
 }
-int a = 0;
-int AFN::recunoaste(std::string cuvant, int indice, int stare)
+int AFNN::recunoaste(std::string cuvant, int indice, int stare)
 {
-    bool done = false;
-	for(int i = indice; i < cuvant.size(); i++)
+    /// (Q, Sigma, delta, q0, F)
+    /// delta : Q x V -> Q
+    /// delta' : Q x V* -> Q
+
+//	std::cout<<indice<<' '<<stare<<'\n';
+//    bool done = false;
+//	for(int i = indice; i < cuvant.size(); i++)
 	{
 	    for(int j = 0; j < 256; j++)
         {
-            if(tranzitie[stare][cuvant[i]][j] != -1)
+            if(tranzitie[stare][cuvant[indice]][j] != -1)
             {
-                done = true;
-                return recunoaste(cuvant, i + 1, j) || a;
+//                std::cout<<stare<<' '<<j<<' '<<cuvant[indice]<<'\n';
+//                done = true;
+                recunoaste(cuvant, indice + 1, j);
             }
         }
-        if(!done)
-        {
-            return 0;
-        }
+//        if(!done)
+//        {
+//            return 0;
+//        }
 	}
-	a = 1;
-	return 1;
+	if(estefinala(stare))
+    {
+        a = 1;
+        return 1;
+    }
+    return 0;
 //functia de recunoastere a cuvintelor
 }

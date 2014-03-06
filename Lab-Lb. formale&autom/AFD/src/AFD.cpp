@@ -26,10 +26,10 @@ int AFD::recunoaste(std::string cuvant, int f[])
         f[i+1] = gettranzitie(f[i], cuvant[i]);
         if(f[i+1] == -1)
         {
-            return -1;
+            return i+1;
         }
     }
-    return 1;
+    return cuvant.size();
 //functia de recunoastere a cuvintelor
 //*f va fi starea in care a ajuns automatul, indiferent daca accepta
 //cuvantul sau nu
