@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1394780195 source:c:\users\alexandru\documents\github\laboratoare\lab-alggrafuri\gradele nodurilor\main.cpp
+	<iostream>
+	<fstream>
+	<algorithm>
+
