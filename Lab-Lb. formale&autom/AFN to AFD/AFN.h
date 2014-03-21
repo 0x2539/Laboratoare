@@ -6,6 +6,7 @@
 class AFNN
 {
 	int nrstari;
+	std::string alfabet;
 	//starile vor fi 0, 1,..., nrstari-1
 	//starea initiala este 0
 	int finala[256];//vectorul caracteristic al starilor finale
@@ -18,11 +19,17 @@ public:
 
     int a = 0;
 
+    void add_to_alfabet(std::string c)
+    {
+        alfabet = c;
+    }
+
     int verifica(int stare_curenta, int indice, std::string cuvant, int nr_litere);
 	int getnrstari()
 	{
 		return nrstari;
 	}
+    int afn_to_afd(std::string stare_curenta);///, std::string litere);
 
 	void setnrstari(int);
 

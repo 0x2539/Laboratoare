@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1395318455 source:c:\users\alexandru\documents\github\laboratoare\lab-lb. formale&autom\afn to afd\afn.cpp
+	"AFN.h"
+	<unordered_map>
+	<algorithm>
+	<vector>
+	<sstream>
+	<stdlib.h>
+
+1395315790 c:\users\alexandru\documents\github\laboratoare\lab-lb. formale&autom\afn to afd\afn.h
+	<iostream>
+
+1395319173 source:c:\users\alexandru\documents\github\laboratoare\lab-lb. formale&autom\afn to afd\main.cpp
+	<iostream>
+	<fstream>
+	"AFN.h"
+

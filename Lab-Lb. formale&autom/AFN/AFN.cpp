@@ -46,6 +46,25 @@ int AFNN::exectranzitie(int s, unsigned char c, int t[256])
     }
     return 1;
 }
+
+int exista = 0;
+int AFNN::verifica(int stare_curenta, int indice, std::string cuvant, int nr_litere)
+{
+    if (indice < nr_litere)
+    {
+        for (int i=0; i<nrstari; i++)
+            if (tranzitie[stare_curenta][cuvant[indice]][i] == 1)
+                verifica(i,indice + 1, cuvant, nr_litere);
+    }
+    else
+        if (finala[stare_curenta] == 1)
+        exista = 1;
+    return exista;
+
+
+}
+
+
 int AFNN::recunoaste(std::string cuvant, int indice, int stare)
 {
     /// (Q, Sigma, delta, q0, F)
