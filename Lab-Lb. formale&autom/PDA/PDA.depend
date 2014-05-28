@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1401307455 source:c:\users\alexandru\documents\github\laboratoare\lab-lb. formale&autom\pda\main.cpp
+	<iostream>
+	<fstream>
+	<string>
+

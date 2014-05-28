@@ -258,7 +258,16 @@ int AFNN::afn_to_afd(std::string stare_curenta)///, std::string litere)
                     }
                 }
                 starile_mele[stare_curenta].push_back(s);
-                std::cout<<stare_curenta<<' '<<s->litere_prin_care_ajunge<<' '<<s->nume_stare<<'\n';
+                for(int w = 0; w < stare_curenta.size(); w++)
+                {
+                    std::cout<<stare_curenta[w]<<", ";
+                }
+                std::cout<<s->litere_prin_care_ajunge<<' ';///<<s->nume_stare<<' '<<'\n';
+                for(int w = 0; w < s->nume_stare.size(); w++)
+                {
+                    std::cout<<s->nume_stare[w]<<", ";
+                }
+                std::cout<<'\n';
                 afn_to_afd(s->nume_stare);
             }
             litere[alfabet[i]].clear();
