@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1401544620 source:c:\users\alexandru\documents\github\laboratoare\lab-alggrafuri\arbore binar de cautare\main.cpp
+	<iostream>
+	<fstream>
+
