@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1401531330 source:c:\users\alexandru\documents\github\laboratoare\lab-alggrafuri\trie\main.cpp
+	<iostream>
+	<fstream>
+	<unordered_map>
+

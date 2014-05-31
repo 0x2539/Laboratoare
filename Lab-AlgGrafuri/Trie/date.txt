@@ -1,0 +1,8 @@
+7
+a aaa
+c a
+a bbb
+c bbb
+s bbb
+c bbb
+c aaa
