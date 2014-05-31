@@ -74,34 +74,37 @@ void sterge(int value)
                         replaceable = replaceable->stanga;
                         found = true;
 
-                        while(replaceable->stanga && replaceable->stanga->esteSetat == true)
-                        {
-                            //valueToReplace = replaceable->value;
-                            replaceable = replaceable->stanga;
-                        }
-                        valueToReplace = replaceable->value;
-                        replaceable->esteSetat = false;
 //                        delete replaceable;
 //                        replaceable = NULL;
                     }
-                    else
-                        //ma duc in dreapta daca pot
-                        if(replaceable->dreapta && replaceable->dreapta->esteSetat == true)
-                        {
-                            //ma duc in dreapta
-                            replaceable = replaceable->dreapta;
-                            found = true;
+//                    else
+//                        //ma duc in dreapta daca pot
+//                        if(replaceable->dreapta && replaceable->dreapta->esteSetat == true)
+//                        {
+//                            //ma duc in dreapta
+//                            replaceable = replaceable->dreapta;
+//                            found = true;
+//
+//                            while(replaceable->dreapta && replaceable->dreapta->esteSetat == true)
+//                            {
+//                                //valueToReplace = replaceable->value;
+//                                replaceable = replaceable->dreapta;
+//                            }
+//                            valueToReplace = replaceable->value;
+//                            replaceable->esteSetat = false;
+////                            delete replaceable;
+////                            replaceable = NULL;
+//                        }
 
-                            while(replaceable->dreapta && replaceable->dreapta->esteSetat == true)
-                            {
-                                //valueToReplace = replaceable->value;
-                                replaceable = replaceable->dreapta;
-                            }
-                            valueToReplace = replaceable->value;
-                            replaceable->esteSetat = false;
-//                            delete replaceable;
-//                            replaceable = NULL;
-                        }
+                    while(replaceable->dreapta && replaceable->dreapta->esteSetat == true)
+                    {
+                        found = true;
+                        //valueToReplace = replaceable->value;
+                        replaceable = replaceable->dreapta;
+                    }
+                    valueToReplace = replaceable->value;
+                    replaceable->esteSetat = false;
+
                     if(found)
                     {
                         current->value = valueToReplace;
