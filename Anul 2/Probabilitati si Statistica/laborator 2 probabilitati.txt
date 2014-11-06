@@ -1,0 +1,86 @@
+1) In cate moduri pot fi aranjate literele din cuvantul STATISTICS (10!/(3!*3!*2!)
+3! = nr de T
+3! = nr de S
+2! = nr de I
+
+2) Ai cifrele 2,3,6,7,8. Cate numere impare de 5 cifre se pot forma cu aceste cifre, daca:
+a) repetitiile nu sunt permise? (4! * 2)
+b) repetitiile sunt permise? (5^4 * 2)
+
+3)
+CD-uri:
+6 pop
+3 jazz
+2 clasic
+In cate moduri se pot aranja a.i. CD-urile de jazz sa stea unul langa altul?
+
+6pop - 3jazz - 2clasic = 9! * 3!
+
+4) Paradoxul lui MERE
+Sa se arate ca este mai probabil ca aruncand o data 4 zaruri sa se obtina cel putin o data fata 1, decat aruncand de 24 de ori cate 2 zaruri sa se obtina cel putin o data o dubla de 1.
+
+5) Se imagineaza un joc in care jucatorul X, arunca 6 zaruri si castiga jocul daca obtine cel putin o data fata 1, dar jucatorul Y arunca 12 zaruri si castiga jocul daca obtine cel putin de 2 ori fata 1. Cine are sanse mai mari de a castiga jocul?
+
+6) Dintre cele 30 de subiecte recomandate pentru examen de catre profesorul de curs, un student a pregatit 20 pe care le poate prezenta perfect. La examen fiecare subiect este scris pe cate un bilet, iar studentul trebuie sa extraga 5 bilete la intamplare si sa prezinte cele 5 subiecte. Stim ca pentru fiecare subiect primeste 2 puncte daca raspunde corect si ca nu se acorda nici un punct pentru rezultate partiale, calculati:
+a)probabilitatea ca el sa ia nota 10
+b)probabilitatea ca el sa ia nota 6
+c)probabilitatea ca el sa nu promoveze examenul (nota < 6)
+
+7) Intr-un magazin se gasesc 100 de calcultoare de acelasi tip, si 3 furnizori: 30 calcultoare (F1), 50 calculatoare (F2), 20 calcultoare (F3). S-a observat ca apar defectiuni in perioada de garantie la 2% de la F1, 4% de la F2 si 5% de la F3. Calculati probabilitatea;
+a)un calculator din magazin sa se defecteze in perioada de garantie.
+b)un calculator care se defecteaza din perioada de garantia sa provina de la al 2lea F2.
+
+8) Un sofer a fost amendat pentru parcare interzisa de 12 ori numai in zilele de luni si marti. Din aceasta cauza soferul s-a decis sa nu foloseasca masina in aceste 2 zile.
+a)Este justificata aceasta decizie? (2/7)^12
+b)Daca cele 12 amenzi au fost date in zilele lucratoare ale saptamanii rezulta ca nu se dau amenzi duminica?
+(6/7)^12
+
+9) Intr-un lot de 100 de piese 6 piese au defecte remediabile, 4 sunt rebuturi iar restul sunt bune. Din acest lot au fost luate la intamplare 10 piese. Calculati probabilitatea sa avem: 7 bune, 2 cu defecte remediabile, 1 rebut
+
+10) O urna are bile de culori:
+5 rosii
+5 verzi
+5 galbene
+Se iau 2 bile fara intoarcere. Care este probabilitatea:
+a) sa avem aceeasi culoare? (5/15 * 4/14) * 3 = 2/7
+b) sa avem culori diferite? (1 - 2/7)
+
+11) Se fac trageri asupra unui obiect pana cand acesta este doborat. Pentru doborarea lui este suficienta o tragere reusita. La fiecare tragere in parte probabilitatea de succes este 1/3.
+
+1 		2 			3 						k
+1 / 3 	2/3 * 1/3 	(2/3)^2 * (1/3) 		(2/3)^(k-1) * 1/3
+
+12) Sunt 8 persoane intr-o camera, 4 femei, 4 barbati. 2 persoane ies din camera, care este probabilitatea ca ambele sa fie femei? (4/8 * 3/7 = 3/14)
+
+13)O urna:
+7 bile rosii
+5 galbene
+Se iau 2 bile fara intoarcere si gasiti urmatoarea probabilitate: a 2 bila selectata sa fie rosie stiind ca prima bila:
+a) a fost rosie (6/11)
+b) nu a fost rosie (7/11)
+
+14) Sa se afle probabilitatea ca alegand un numar din multimea {1, 2, ..., n} ca acesta sa se divida prin numarul natural K ([n/k] / n)
+
+15) Dintr-o urna ce contine n bile de diferite culori, se extrag la intamplare k bile cu intoarcere. Sa se determine probabilitatea ca cele k bile extrase sa fie de culori diferite.
+
+16) Aveti cuvantul ARGENTINA. 
+a) In cate moduri pot fi aranjate cele 9 litere? (9! / (2! * 2!))
+b) In cate moduri se pot aranja literele a.i. cuvantul sa devina: CVCVCV.... (C - consoana, V - vocala)? ((5! / 2!) * (4! / 2!))
+
+17) 3 loturi de cate 100 de piese:
+lotul 1 - 3 piese defecte
+lotul 2 - 4 piese defecte
+lotul 3 - 5 piese defecte
+Care este probabilitatea obtinerii a 2 piese bune si a 1 defecta?
+
+18) Intr-un depozit se aduc piese de un anumit tip de la 3 ateliere:
+atelierul 1 - are 2 masini care fabrica aceste piese si da 3 % rebut
+atelierul 2 - are 2 masini care fabrica aceste piese si da 2 % rebut
+atelierul 3 - are 3 masini care fabrica aceste piese si da 3 % rebut
+Care este probabilitatea ca o piesa luata la intamplare din depozit sa fie defecta, stiind ca fiecare masina produce acelasi numar de piese in unitatea de timp.
+Ai - piesa vine de la al i-lea atelier
+A - piesa este defecta
+
+19) 2 zaruri cu 4 fete. Care este probabilitatea ca suma sa fie prima atunci cand zarurile sunt aruncate? (9 / 16)
+
+20) 8 persoane carora li se cere sa stea in linie, dar sunt 2 persoane care refuza sa stea unul langa altul. In cate moduri se intampla acest lucru? (8! - 7! * 2)

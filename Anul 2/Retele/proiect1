@@ -1,0 +1,20 @@
+Proiect 1:
+	Sa se scrie un script care printeaza in stdout, din T in T minute adresele MAC dintr-un fisier setat, cu conditia ca acestea sa nu existe in momentul respectiv pe retea.
+	Exemplu:
+    mac.txt contine 
+        48-2C-6A-1E-59-3D 
+        12-34-56-78-9A-BC   	
+	iar pe retea sunt urmatoarele adrese (aflate dupa apelul 'arp -a' sau echivalentul pe linux):
+	    12-34-56-78-9A-BC
+	    00-34-56-78-9A-BC
+	    01-34-56-78-9A-BC
+	 ---
+	 fisierul mac.txt va contine:
+        48-2C-6A-1E-59-3D 
+        12-34-56-78-9A-BC   	
+	    00-34-56-78-9A-BC
+	    01-34-56-78-9A-BC
+     iar in stdout printam:
+        '48-2C-6A-1E-59-3D' 
+     pentru ca e singurul din fisier care nu se gaseste pe retea.	 
+	
