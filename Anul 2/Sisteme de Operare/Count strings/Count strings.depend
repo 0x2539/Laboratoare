@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1420556223 source:c:\users\alexandru\desktop\count strings\main.c
+	<stdio.h>
+	<stdlib.h>
+
+1420556417 source:c:\users\alexandru\desktop\count strings\folders.c
+	<sys/types.h>
+	<dirent.h>
+	<string.h>
+	<stdio.h>
+	<sys/stat.h>
+	<unistd.h>
+
