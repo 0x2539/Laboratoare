@@ -1,7 +1,5 @@
 
-import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.opengl.*;
-import org.lwjgl.*;
 
 
 public class MainProject {

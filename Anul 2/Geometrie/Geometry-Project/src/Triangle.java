@@ -3,11 +3,6 @@ import static org.lwjgl.opengl.GL11.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Keyboard;
-import org.newdawn.slick.opengl.Texture;
-
-import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.Key;
-
 public class Triangle {
 	private List<Point> points;
 	private Point center;
