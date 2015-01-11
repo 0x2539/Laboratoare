@@ -77,7 +77,7 @@ int fileinfo(const char *nf)
     return 0;
 }
 
-int main()
+int mainss()
 {
     listdir("G:\\Folder");
     printf("%d", counter);

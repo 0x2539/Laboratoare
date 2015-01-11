@@ -19,23 +19,23 @@ def do_xor(first, second):
     return new_xor
 
 def get_crc(polynomial, message):
-    index = 4
-    last_part = message[:4]
+    index = len(polynomial)
+    last_part = message[:len(polynomial)]
     # print message
     crc = ''
     while index <= len(message):
         xor_elements = do_xor(last_part, polynomial)
         # print xor_elements, message[index : ], index, index + 4 - len(xor_elements)
-        last_part = xor_elements + message[index : index + 4 - len(xor_elements)]
-        index += 4 - len(xor_elements)
+        last_part = xor_elements + message[index : index + len(polynomial) - len(xor_elements)]
+        index += len(polynomial) - len(xor_elements)
         crc = xor_elements
-    zeros = '0'* (3-len(crc))
+    zeros = '0'* (len(polynomial) - 1 -len(crc))
     crc = zeros + crc
     return crc
 
 
 def main():
-    polynomial = '1101'
+    polynomial = '101'
     message = '010111001'
     message = padd_bits_end(polynomial, message)
     print get_crc(polynomial, message)
