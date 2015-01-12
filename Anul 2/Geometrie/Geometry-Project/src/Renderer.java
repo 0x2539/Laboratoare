@@ -17,6 +17,9 @@ public class Renderer {
 
 	private static List<Triangle> triangles = new ArrayList<Triangle>();
 
+	private static Point thePoint = new Point(400, 400);
+	private static Point thePoint2 = new Point(200, 400);
+
 	public static void initializeDisplay() {
 
 		try {
@@ -98,6 +101,8 @@ public class Renderer {
 		{
 			triangles.get(i).draw(i%2 == 0 ? true : false);
 		}
+		thePoint.draw(true);
+		thePoint2.draw(false);
 	}
 	
 	private static void input()
@@ -108,6 +113,8 @@ public class Renderer {
 			{
 				triangles.get(i).refresh();
 			}
+			thePoint.refresh();
+			thePoint2.refresh();
 		}
 	}
 }

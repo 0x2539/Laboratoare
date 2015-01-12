@@ -7,6 +7,9 @@ public class Triangle {
 	private List<Point> points;
 	private Point center;
 	private double radius;
+
+	float current_radius = 0;
+	float current_radius_second = 0;
 	
 	public void refresh()
 	{
@@ -53,19 +56,16 @@ public class Triangle {
 		drawSquares();
 	}
 	
-	float current_radius = 0;
-	float current_radius_second = 0;
-	
 	private void drawWavesSin()
 	{
-		drawCircle(center, Math.min(radius * Math.sin(current_radius), radius), false);
+		Circle.draw(center, Math.min(radius * Math.sin(current_radius), radius), false);
 		if(current_radius > 90 * Math.PI / 180.0f)
 		{
 			if(current_radius_second < 90 * Math.PI / 180.0f)
 			{
 				current_radius_second += 0.04f;
 			}
-			drawCircle(center, Math.min(radius * Math.sin(current_radius_second), radius), true);
+			Circle.draw(center, Math.min(radius * Math.sin(current_radius_second), radius), true);
 
 			drawLines();
 		}
@@ -77,14 +77,14 @@ public class Triangle {
 
 	private void drawWaves()
 	{
-		drawCircle(center, Math.min(current_radius, radius), false);
+		Circle.draw(center, Math.min(current_radius, radius), false);
 		if(current_radius > radius)
 		{
 			if(current_radius_second < radius)
 			{
 				current_radius_second += 2.0f;
 			}
-			drawCircle(center, Math.min(current_radius_second, radius), true);
+			Circle.draw(center, Math.min(current_radius_second, radius), true);
 
 			drawLines();
 		}
@@ -121,34 +121,6 @@ public class Triangle {
 	private double distance(Point p1, Point p2) {
 		return Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y)
 				* (p1.y - p2.y));
-	}
-
-	private void drawCircle(Point center, double radius, boolean invisible) {
-		//draw the first wave
-		if(!invisible)
-		{
-			glColor4f(0, 0.5f, 0.7f, 1.f);
-		}
-		else
-		//draw the white wave
-		{
-			glColor4f(1, 1, 1, 1);
-		}
-		
-		//draw the circle
-		glBegin(GL_TRIANGLE_FAN);
-			glVertex2f(center.x, center.y);
-			
-			double x1, y1, x2, y2;
-			x1 = center.x;
-			y1 = center.y;
-	
-			for (float angle = 0.0f; angle <= 2 * Math.PI + 0.2; angle += 0.2) {
-				x2 = x1 + Math.sin(angle) * radius;
-				y2 = y1 + Math.cos(angle) * radius;
-				glVertex2d(x2, y2);
-			}
-		glEnd();
 	}
 
 	public Point find_center(Point A, Point B, Point C) {
@@ -239,11 +211,3 @@ class Square {
 
 }
 
-class Point {
-	float x, y;
-
-	public Point(float x, float y) {
-		this.x = x;
-		this.y = y;
-	}
-}
