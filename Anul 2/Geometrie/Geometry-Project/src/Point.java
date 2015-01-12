@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Point {
 	private double radius;
-	private int maxWaves = 3;
+	private int maxWaves = 2;
 	private int currentNrOfWaves = 0;
 
 	double current_radius = 0;
@@ -27,7 +27,7 @@ public class Point {
 	}
 
 	private void initValues() {
-		radius = 40;
+		radius = 20;
 	}
 
 	public void draw(boolean sin) {

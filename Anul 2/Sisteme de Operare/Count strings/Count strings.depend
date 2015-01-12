@@ -11,9 +11,13 @@
 	<sys/stat.h>
 	<unistd.h>
 
-1420556223 source:c:\users\alexandru\documents\laboratoare\anul 2\sisteme de operare\count strings\main.c
+1421086404 source:c:\users\alexandru\documents\laboratoare\anul 2\sisteme de operare\count strings\main.c
 	<stdio.h>
 	<stdlib.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<fcntl.h>
 
 1420569753 source:c:\users\alexandru\documents\laboratoare\anul 2\sisteme de operare\count strings\folders.c
 	<sys/types.h>
@@ -23,7 +27,7 @@
 	<sys/stat.h>
 	<unistd.h>
 
-1420572661 source:c:\users\alexandru\documents\laboratoare\anul 2\sisteme de operare\count strings\files.c
+1421090438 source:c:\users\alexandru\documents\laboratoare\anul 2\sisteme de operare\count strings\files.c
 	<stdio.h>
 	<stdlib.h>
 	<unistd.h>

@@ -5,24 +5,43 @@
 #include<sys/stat.h>
 #include<fcntl.h>
 
-void read_file()
+void solve(int nrOfFiles, char *files[])
 {
-     int d1,d2,d3;
-     char buf[10];
+    int f = creat(files[nrOfFiles - 1], S_IWRITE);
+    char buffer[1024];
+    int i;
+    close(f);
 
-     d1=open("f1.txt",O_RDONLY);
-     d2=open("f1.txt",O_RDWR);
-     d3=dup(d2);
+    f = open(files[nrOfFiles - 1], O_RDWR);
 
-     read(d2,buf, 2); buf[3]='\0'; printf("%s\n",buf);
-     char *haa = '\0';
-     write(d2, ' ', 2);
-     read(d1,buf, 4); buf[4]='\0'; printf("%s\n",buf);
-     read(d3,buf, 2); buf[3]='\0'; printf("%s\n",buf);
+    for(i = 1; i < nrOfFiles - 1; i++)
+    {
+        if(files[i] != '+')
+        {
+            int auxF=open(files[i],O_RDONLY);
+
+            int j;
+            for(j = 0; j < 1024; j++)
+            {
+                buffer[j] = '\0';
+            }
+
+            while(read(auxF, buffer, 1024) > 0)
+            {
+                printf("%s %d %s\n", buffer, i, files[i]);
+                write(f, buffer, strlen(buffer));
+            }
+
+            close(auxF);
+        }
+    }
+    //write(f, "yellow", 1024);
+    close(f);
 }
 
 int main()
 {
-    read_file();
+    char *files[] = {"nume", "f1.txt", '+', "f2.txt", "f3.txt"};
+    solve(5, files);
     return 0;
 }

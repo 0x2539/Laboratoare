@@ -1,79 +1,68 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<fcntl.h>
 
-void sort(char *string, char *message)
+int check_strings(char *string, char *message)
 {
-    int counter = 0;
-    int i = 0;
-    for(i = 0; i < strlen(message) - strlen(string) + 1; i++)
-    {
-        int j = 0;
-        int ok = 1;
-        for(j = 0; j < strlen(string); j++)
-        {
-            if(message[i+j] != string[j])
-            {
-                ok = 0;
-                break;
-            }
-        }
-        if(ok)
-        {
-            counter++;
-        }
-    }
-    return counter;
-}
-
-void read_ints(char *file_name)
-{
-    FILE *myFile;
-    myFile = fopen(file_name, "r");
-
-    //read file into array
-    int numberArray[16];
+//    printf("%s %s\n", string, message);
+    int k = strlen(string) - 1;
     int i;
-
-    for (i = 0; i < 16; i++)
+    //for(i = strlen(message) - 1; i >= strlen(message) - strlen(string); i--)
+    for(i = 0; i < strlen(string); i++)
     {
-        fscanf(myFile, "%d", &numberArray[i]);
+        if(string[i] != message[i])
+        {
+            return 0;
+        }
+        k--;
     }
-
-    for (i = 0; i < 16; i++)
-    {
-        printf("Number is: %d\n\n", numberArray[i]);
-    }
+    return 1;
 }
 
-int count_strings(char *string, char *message)
+int count_strings(char *string, char *file)
 {
     int counter = 0;
     int i = 0;
-    for(i = 0; i < strlen(message) - strlen(string) + 1; i++)
+
+    char buf[strlen(string) + 1];
+    char secondBuf[1];
+    for(i = 0; i < strlen(string) + 1; i++)
     {
-        int j = 0;
-        int ok = 1;
-        for(j = 0; j < strlen(string); j++)
+        buf[i] = '\0';
+    }
+    secondBuf[0] = '\0';
+
+    int d=open(file,O_RDONLY);
+    int reading = read(d,buf, strlen(string));
+
+    while(reading > 0)
+    {
+        counter += check_strings(string, buf);
+        reading = read(d, secondBuf, 1);
+
+        if(reading > 0)
         {
-            if(message[i+j] != string[j])
+            for(i = 0; i < strlen(string) - 1; i++)
             {
-                ok = 0;
-                break;
+                buf[i] = buf[i+1];
             }
-        }
-        if(ok)
-        {
-            counter++;
+            buf[strlen(string) - 1] = secondBuf[0];
         }
     }
+
+    close(d);
+
     return counter;
 }
 
 int mains()
 {
-    printf("Hello world!\n");
-    char *string = "abc";
-    char *message = "abc abc bac abc sss abc";
+    char *string = "lin";
+    char *message = "f1.txt";
     printf("%d", count_strings(string, message));
+    //count_strings(string, "file.txt");
     return 0;
 }

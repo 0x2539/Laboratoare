@@ -7,100 +7,83 @@ public class Triangle {
 	private List<Point> points;
 	private Point center;
 	private double radius;
+	private boolean finished = false;
 
 	float current_radius = 0;
 	float current_radius_second = 0;
-	
-	public void refresh()
-	{
+
+	public void refresh() {
 		current_radius = 0;
 		current_radius_second = 0;
 	}
 
 	public Triangle(List<Point> list) {
 		points = new ArrayList<Point>();
-		for(int i = 0; i < list.size(); i++)
-		{
+		for (int i = 0; i < list.size(); i++) {
 			points.add(list.get(i));
 		}
-		
+
 		initValues();
 	}
-	
+
 	public Triangle(Point p1, Point p2, Point p3) {
 		points = new ArrayList<Point>();
-		
+
 		points.add(p1);
 		points.add(p2);
 		points.add(p3);
-		
+
 		initValues();
 	}
-	
-	private void initValues()
-	{
+
+	private void initValues() {
 		center = find_center(points.get(0), points.get(1), points.get(2));
 		radius = distance(center, points.get(0));
 	}
 
-	public void draw(boolean sin) {
+	public void draw() {
 		// drawTheSquares();
-		if(!sin)
-		{
-			drawWavesSin();
-		}
-		else
-		{
+		if (!finished) {
 			drawWaves();
-		}
-		drawSquares();
-	}
-	
-	private void drawWavesSin()
-	{
-		Circle.draw(center, Math.min(radius * Math.sin(current_radius), radius), false);
-		if(current_radius > 90 * Math.PI / 180.0f)
-		{
-			if(current_radius_second < 90 * Math.PI / 180.0f)
-			{
-				current_radius_second += 0.04f;
-			}
-			Circle.draw(center, Math.min(radius * Math.sin(current_radius_second), radius), true);
-
+			drawSquares();
+		} else {
 			drawLines();
+			drawSquares();
 		}
-		else
-		{
+	}
+
+	private void drawWaves() {
+		Circle.draw(center,
+				Math.min(radius * Math.sin(current_radius), radius), false);
+		if (current_radius > 90 * Math.PI / 180.0f) {
+			if (current_radius_second < 90 * Math.PI / 180.0f) {
+				current_radius_second += 0.04f;
+			} else {
+					finished = true;
+			}
+			Circle.draw(center,
+					Math.min(radius * Math.sin(current_radius_second), radius),
+						true);
+			drawLines();
+
+		} else {
 			current_radius += 0.04f;
 		}
 	}
 
-	private void drawWaves()
-	{
-		Circle.draw(center, Math.min(current_radius, radius), false);
-		if(current_radius > radius)
-		{
-			if(current_radius_second < radius)
-			{
-				current_radius_second += 2.0f;
-			}
-			Circle.draw(center, Math.min(current_radius_second, radius), true);
-
-			drawLines();
-		}
-		else
-		{
-			current_radius += 2.0f;
-		}
+	public boolean isFinishedDrawing() {
+		return finished;
 	}
-	
-	private void drawSquares()
-	{
-		for(int i = 0; i < points.size(); i++)
-		{
+
+	public void setFinished(boolean finished) {
+		this.finished = finished;
+	}
+
+	private void drawSquares() {
+		for (int i = 0; i < points.size(); i++) {
 			int j = (i + 1) % points.size();
 			int k = (i + 2) % points.size();
-			Square.drawSquare(points.get(i), points.get(j), points.get(k));	
+			Square.drawSquare(points.get(i), points.get(j), points.get(k));
 		}
 	}
 
@@ -108,12 +91,12 @@ public class Triangle {
 		glColor4f(0, 0.5f, 0.7f, 1.f);
 		glEnable(GL_LINE_SMOOTH);
 		glLineWidth(2);
-		
+
 		for (int i = 0; i < points.size(); i++) {
 			int j = (i + 1) % points.size();
 			glBegin(GL_LINES);
-				glVertex2f(points.get(i).x, points.get(i).y);
-				glVertex2f(points.get(j).x, points.get(j).y);
+			glVertex2f(points.get(i).x, points.get(i).y);
+			glVertex2f(points.get(j).x, points.get(j).y);
 			glEnd();
 		}
 	}
@@ -171,19 +154,19 @@ class Square {
 		p4.y = pCenter1.y - pCenter2.x; // Fourth corner
 
 		glColor4d(1, 1, 1, 1);
-		
-		//draw only half of the square
+
+		// draw only half of the square
 		if (!both) {
 			if (getSide(other, p1, p2) != getSide(p4, p1, p2)) {
-				
+
 				drawTriangle(p1, p2, p4);
-				
+
 				if (drawn_times == 1) {
 					square(p1, p4, p3, true);
 					square(p2, p4, p1, true);
 				}
 			} else {
-				
+
 				drawTriangle(p1, p2, p3);
 
 				if (drawn_times == 1) {
@@ -191,17 +174,15 @@ class Square {
 					square(p2, p3, p1, true);
 				}
 			}
-		}
-		else
-			//draw the full square
+		} else
+		// draw the full square
 		{
 			drawTriangle(p1, p2, p4);
 			drawTriangle(p1, p2, p3);
 		}
 	}
-	
-	private static void drawTriangle(Point p1, Point p2, Point p3)
-	{
+
+	private static void drawTriangle(Point p1, Point p2, Point p3) {
 		glBegin(GL_TRIANGLES);
 		glVertex2d(p1.x, p1.y);
 		glVertex2d(p3.x, p3.y);
@@ -210,4 +191,3 @@ class Square {
 	}
 
 }
-

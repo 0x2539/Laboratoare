@@ -24,7 +24,7 @@ public class Renderer {
 
 		try {
 			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT));
-			Display.setTitle("PacMan");
+			Display.setTitle("Geometry Project");
 			Display.create();
 		} catch (LWJGLException e) {
 			e.printStackTrace();
@@ -99,7 +99,16 @@ public class Renderer {
 	private static void renderTriangles() {
 		for (int i = 0; i < triangles.size(); i++)
 		{
-			triangles.get(i).draw(i%2 == 0 ? true : false);
+			if(i > 0)
+			{
+				if(triangles.get(i-1).isFinishedDrawing())
+				{
+					triangles.get(i).draw();					
+				}
+			}
+			else {
+				triangles.get(i).draw();
+			}
 		}
 		thePoint.draw(true);
 		thePoint2.draw(false);
@@ -112,6 +121,7 @@ public class Renderer {
 			for (int i = 0; i < triangles.size(); i++)
 			{
 				triangles.get(i).refresh();
+				triangles.get(i).setFinished(false);
 			}
 			thePoint.refresh();
 			thePoint2.refresh();
