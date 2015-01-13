@@ -7,53 +7,58 @@ import os
 from math import ceil
 
 sock = None
-class TimeLimitExpired(Exception): pass
-
-def timelimit(timeout, func):
-    """ Run func with the given timeout. If func didn't finish running
-        within the timeout, raise TimeLimitExpired
-    """
-    import threading
-    class FuncThread(threading.Thread):
-        def __init__(self):
-            threading.Thread.__init__(self)
-            self.result = None
-
-        def run(self):
-            self.result = func()
-
-    it = FuncThread()
-    it.start()
-    it.join(timeout)
-    if it.isAlive():
-        raise TimeLimitExpired()
-    else:
-        return it.result
+# class TimeLimitExpired(Exception): pass
+#
+# def timelimit(timeout, func):
+#     """ Run func with the given timeout. If func didn't finish running
+#         within the timeout, raise TimeLimitExpired
+#     """
+#     import threading
+#     class FuncThread(threading.Thread):
+#         def __init__(self):
+#             threading.Thread.__init__(self)
+#             self.result = None
+#
+#         def run(self):
+#             self.result = func()
+#
+#     it = FuncThread()
+#     it.start()
+#     it.join(timeout)
+#     if it.isAlive():
+#         raise TimeLimitExpired()
+#     else:
+#         return it.result
 
 def ceildiv(a, b):
     return -(-a // b)
 
 def send_packet(message, bit):
     # Send data
-    print 'sent packet:', message
-    sock.sendall(message)
+    while(True):
+        try:
+            print 'sent packet:', message
+            sock.sendall(message)
 
-    # Look for the response
-    amount_received = 0
-    amount_expected = len(message)
+            # Look for the response
+            amount_received = 0
+            amount_expected = len(message)
 
-    data = ''
+            data = ''
 
-    while amount_received < amount_expected:
-        data += sock.recv(5)
-        amount_received += len(data)
+            while amount_received < amount_expected:
+                data += sock.recv(5)
+                amount_received += len(data)
 
-    if data == message and data[-1] == bit:
-        print 'received packet:', data
-        return True
-    else:
-        print 'didn\'t receive all data:', data
-        return False
+            if data == message and data[-1] == bit:
+                print 'received packet:', data
+                return True
+            else:
+                print 'didn\'t receive all data:', data
+                return False
+        except:
+            pass
+    return True
 
 def send_message(message):
     # Send data
@@ -77,6 +82,7 @@ def init_connection():
     # Create a TCP/IP socket
     global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(2)
 
     # Connect the socket to the port where the server is listening
     server_address = ('localhost', 8001)
@@ -97,8 +103,9 @@ def run_client():
         sock.close()
 
 init_connection()
-timeout_ct = 10
-timelimit(timeout_ct, run_client)
+run_client()
+# timeout_ct = 10
+# timelimit(timeout_ct, run_client)
 
 
 

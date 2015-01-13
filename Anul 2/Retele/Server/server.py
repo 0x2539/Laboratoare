@@ -9,32 +9,34 @@ client_address = None
 connection = None
 no_more_data = False
 
-class TimeLimitExpired(Exception): pass
-
-def timelimit(timeout, func):
-    """ Run func with the given timeout. If func didn't finish running
-    within the timeout, raise TimeLimitExpired
-    """
-    class FuncThread(threading.Thread):
-        def __init__(self):
-            threading.Thread.__init__(self)
-            self.result = None
-
-        def run(self):
-            self.result = func()
-
-    it = FuncThread()
-    it.start()
-    it.join(timeout)
-    if it.isAlive():
-        raise TimeLimitExpired()
-    else:
-        return it.result
+# class TimeLimitExpired(Exception): pass
+#
+# def timelimit(timeout, func):
+#     """ Run func with the given timeout. If func didn't finish running
+#     within the timeout, raise TimeLimitExpired
+#     """
+#     class FuncThread(threading.Thread):
+#         def __init__(self):
+#             threading.Thread.__init__(self)
+#             self.result = None
+#
+#         def run(self):
+#             self.result = func()
+#
+#     it = FuncThread()
+#     it.start()
+#     it.join(timeout)
+#     if it.isAlive():
+#         raise TimeLimitExpired()
+#     else:
+#         return it.result
 
 def init_server():
     # Create a TCP/IP socket
     global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(2)
+    sock.setblocking(1)
 
     # Bind the socket to the port
     server_address = ('localhost', 8001)
@@ -72,7 +74,8 @@ def run_server():
             # Receive the data in small chunks and retransmit it
             no_more_data = False
             while True and not no_more_data:
-                timelimit(timeout_st, read_messages)
+                read_messages()
+                #timelimit(timeout_st, read_messages)
 
         except Exception, e:
             print e
