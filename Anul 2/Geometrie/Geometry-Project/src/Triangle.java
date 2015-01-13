@@ -11,6 +11,15 @@ public class Triangle {
 
 	float current_radius = 0;
 	float current_radius_second = 0;
+	
+	float red = 0, green = 0.5f, blue = 0.7f;
+	
+	public void setColor(float red, float green, float blue)
+	{
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+	}
 
 	public void refresh() {
 		current_radius = 0;
@@ -35,6 +44,19 @@ public class Triangle {
 
 		initValues();
 	}
+	
+	public void setPoints(Point p1, Point p2, Point p3)
+	{
+		points.set(0, p1);
+		points.set(1, p2);
+		points.set(2, p3);
+
+		initValues();
+	}
+	public Point getPoint(int id)
+	{
+		return points.get(id);
+	}
 
 	private void initValues() {
 		center = find_center(points.get(0), points.get(1), points.get(2));
@@ -47,14 +69,13 @@ public class Triangle {
 			drawWaves();
 			drawSquares();
 		} else {
-			drawLines();
-			drawSquares();
+			drawLines(1);
 		}
 	}
 
 	private void drawWaves() {
 		Circle.draw(center,
-				Math.min(radius * Math.sin(current_radius), radius), false);
+				Math.min(radius * Math.sin(current_radius), radius), red, green, blue);
 		if (current_radius > 90 * Math.PI / 180.0f) {
 			if (current_radius_second < 90 * Math.PI / 180.0f) {
 				current_radius_second += 0.04f;
@@ -64,7 +85,7 @@ public class Triangle {
 			Circle.draw(center,
 					Math.min(radius * Math.sin(current_radius_second), radius),
 						true);
-			drawLines();
+			drawLines(2);
 
 		} else {
 			current_radius += 0.04f;
@@ -87,10 +108,10 @@ public class Triangle {
 		}
 	}
 
-	private void drawLines() {
-		glColor4f(0, 0.5f, 0.7f, 1.f);
+	private void drawLines(int lineWidth) {
+		glColor4f(red, green, blue, 1.f);
 		glEnable(GL_LINE_SMOOTH);
-		glLineWidth(2);
+		glLineWidth(lineWidth);
 
 		for (int i = 0; i < points.size(); i++) {
 			int j = (i + 1) % points.size();

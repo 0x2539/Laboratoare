@@ -31,6 +31,9 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="divizori.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="files.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -39,7 +39,7 @@ void solve(int nrOfFiles, char *files[])
     close(f);
 }
 
-int main()
+int mainssss()
 {
     char *files[] = {"nume", "f1.txt", '+', "f2.txt", "f3.txt"};
     solve(5, files);

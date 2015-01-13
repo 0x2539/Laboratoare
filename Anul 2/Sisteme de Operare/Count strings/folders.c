@@ -20,7 +20,10 @@ int listdir(const char *nf)
     {
         strcpy(specificator, cale);
         strcat(specificator, pde->d_name);
-        if(fileinfo(specificator)==-1)perror(specificator);
+        if(strcmp("..", pde->d_name) != 0 && strcmp(".", pde->d_name) != 0)
+        {
+            if(fileinfo(specificator)==-1)perror(specificator);
+        }
     }
     closedir(pd);
     return 0;
@@ -55,6 +58,7 @@ int check_name(char *file)
 int fileinfo(const char *nf)
 {
     struct stat s;
+    struct dirent *entry;
     if(stat(nf,&s)==-1)return -1;
 
     if((s.st_mode & S_IFMT) == S_IFREG)
@@ -67,11 +71,7 @@ int fileinfo(const char *nf)
     }
     else if((s.st_mode & S_IFMT) == S_IFDIR)
     {
-        if(nf[strlen(nf) - 1] != '.')
-        {
             listdir(nf);
-        }
-        //printf("<DIR>");
     }
     //printf("%s\n",nf);
     return 0;

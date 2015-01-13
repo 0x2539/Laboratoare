@@ -8,7 +8,6 @@
 int check_strings(char *string, char *message)
 {
 //    printf("%s %s\n", string, message);
-    int k = strlen(string) - 1;
     int i;
     //for(i = strlen(message) - 1; i >= strlen(message) - strlen(string); i--)
     for(i = 0; i < strlen(string); i++)
@@ -17,7 +16,6 @@ int check_strings(char *string, char *message)
         {
             return 0;
         }
-        k--;
     }
     return 1;
 }

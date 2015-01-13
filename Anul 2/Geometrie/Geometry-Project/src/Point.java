@@ -10,6 +10,8 @@ public class Point {
 
 	double current_radius = 0;
 	double current_radius_second = 0;
+	
+	public boolean isFinished = false;
 
 	float x, y;
 
@@ -19,11 +21,23 @@ public class Point {
 
 		initValues();
 	}
+	
+	public void location(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
+	public void setX(float x) {
+		this.x = x;
+	}
+	public void setY(float y) {
+		this.y = y;
+	}
 
 	public void refresh() {
 		current_radius = 0;
 		current_radius_second = 0;
 		currentNrOfWaves = 0;
+		isFinished = false;
 	}
 
 	private void initValues() {
@@ -76,6 +90,9 @@ public class Point {
 			// }
 			if (current_radius > Math.sin(radius) / 8) {
 				current_radius -= 0.04f;
+			}
+			else {
+				isFinished = true;
 			}
 			Circle.draw(this,
 					Math.min(radius * Math.sin(current_radius), radius),
