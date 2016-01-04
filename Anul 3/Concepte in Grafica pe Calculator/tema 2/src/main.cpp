@@ -421,7 +421,7 @@ void CreateVBOIntersectionPoints(myPoint myPointss[], int sizee)
   // este setat ca buffer curent
   glBindBuffer(GL_ARRAY_BUFFER, VboId);
   // punctele sunt "copiate" in bufferul curent
-  glBufferData(GL_ARRAY_BUFFER, sizeof(myPointss), myPointss, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(myPoint) * sizee, myPointss, GL_STATIC_DRAW);
   
   // se creeaza / se leaga un VAO (Vertex Array Object) - util cand se utilizeaza mai multe VBO
   glGenVertexArrays(1, &VaoId);
@@ -450,7 +450,7 @@ void CreateVBOIntersectionLines(myLine myLines[], int size)
   // este setat ca buffer curent
   glBindBuffer(GL_ARRAY_BUFFER, VboId);
   // punctele sunt "copiate" in bufferul curent
-  glBufferData(GL_ARRAY_BUFFER, sizeof(myLines), myLines, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(myLine) * size, myLines, GL_STATIC_DRAW);
   
   // se creeaza / se leaga un VAO (Vertex Array Object) - util cand se utilizeaza mai multe VBO
   glGenVertexArrays(1, &VaoId);
@@ -493,14 +493,16 @@ void CreateVBOIntersection() {
         }
         else{
           myLiness[index2++] = myLineTemp;
+          myPointss[index1++] = myLineTemp.getPoint1();
+          myPointss[index1++] = myLineTemp.getPoint2();
         }
         // cout<<"yolo "<<index1<<" "<<index2<<'\n';
       }
     }
   }
   cout<<index1<<' '<< index2<<'\n';
-  CreateVBOIntersectionPoints(myPoints, 8);
-  // CreateVBOIntersectionLines(myLiness, index2);
+  CreateVBOIntersectionPoints(myPointss, index1);
+  CreateVBOIntersectionLines(myLiness, index2);
 }
 
 void DestroyVBO(void)
@@ -556,8 +558,8 @@ void RenderFunction(void)
   glPointSize(10.0);
   codCol=0;
 
-  // CreateVBO();
-  // CreateVBOLines();
+  CreateVBO();
+  CreateVBOLines();
   CreateVBOIntersection();
 
   // codCol=2;
