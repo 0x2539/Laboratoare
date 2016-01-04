@@ -67,8 +67,10 @@ private:
   float x, y, radius, speed;
   int index;
   CelestialObject *satellite;
+  CelestialObject *gravityPoint;
   int num_segments = 10;
   myPoint myPoints[10];
+  myPoint myPointsOrbit[20];
   void initPoints()
   {
     for(int i = 0; i < num_segments; i++)
@@ -79,6 +81,18 @@ private:
         GLfloat y = radius * sinf(theta);//calculate the y component
 
         myPoints[i] = myPoint(x, y);//output vertex
+    }
+
+    if(satellite != NULL) {
+      for(int i = 0; i < num_segments * 2; i++)
+      {
+          float theta = 2.0f * 3.1415926f * float(i) / float(num_segments * 2);//get the current angle
+
+          GLfloat x = (radius * (index)) * cosf(theta);//calculate the x component
+          GLfloat y = (radius * (index)) * sinf(theta);//calculate the y component
+
+          myPointsOrbit[i] = myPoint(x, y);//output vertex
+      }
     }
   }
 public:
@@ -93,6 +107,7 @@ public:
     this->radius = radius;
     this->speed = speed;
     this->satellite = new CelestialObject();
+    this->satellite->gravityPoint = this;
     initPoints();
   }
   CelestialObject(int index, float radius, float speed, CelestialObject *satellite)
@@ -101,6 +116,7 @@ public:
     this->radius = radius;
     this->speed = speed;
     this->satellite = satellite;
+    this->satellite->gravityPoint = this;
     initPoints();
   }
 
@@ -130,13 +146,43 @@ public:
 
     // matrTransl=glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0));
     matrTransl=glm::translate<GLfloat>(glm::vec3(x, y, 0.0f));
+    matrRot=glm::rotate(glm::mat4(1.0f), currentTime * 4 * (index+1), glm::vec3(0.0, 0.0, 1.0));
+    myMatrix=resizeMatrix*matrTransl*matrRot;
+    
+    myMatrixLocation = glGetUniformLocation(ProgramId, "myMatrix");
+    glUniformMatrix4fv(myMatrixLocation, 1, GL_FALSE,  glm::value_ptr(myMatrix));
+
+    glUniform1i(codColLocation, index);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, num_segments);    
+
+    drawOrbit();
+  }
+  void drawOrbit()
+  {
+    // se creeaza un buffer nou
+    glGenBuffers(1, &VboId);
+    // este setat ca buffer curent
+    glBindBuffer(GL_ARRAY_BUFFER, VboId);
+    // punctele sunt "copiate" in bufferul curent
+    glBufferData(GL_ARRAY_BUFFER, sizeof(myPointsOrbit), myPointsOrbit, GL_STATIC_DRAW);
+    
+    // se creeaza / se leaga un VAO (Vertex Array Object) - util cand se utilizeaza mai multe VBO
+    glGenVertexArrays(1, &VaoId);
+    glBindVertexArray(VaoId);
+    // se activeaza lucrul cu atribute; atributul 0 = pozitie
+    glEnableVertexAttribArray(0);
+    // 
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);  
+
+    // matrTransl=glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0));
+    matrTransl=glm::translate<GLfloat>(glm::vec3(satellite->x, satellite->y, 0.0f));
     myMatrix=resizeMatrix*matrTransl;
     
     myMatrixLocation = glGetUniformLocation(ProgramId, "myMatrix");
     glUniformMatrix4fv(myMatrixLocation, 1, GL_FALSE,  glm::value_ptr(myMatrix));
 
     glUniform1i(codColLocation, index);
-    glDrawArrays(GL_LINE_LOOP, 0, num_segments);    
+    glDrawArrays(GL_LINE_LOOP, 0, num_segments * 2);    
   }
 };
 
