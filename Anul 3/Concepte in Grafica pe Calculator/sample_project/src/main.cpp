@@ -91,7 +91,7 @@ public:
   }
 };
 
-int nrOfPoints = 7;
+int nrOfPoints = 8;
 //varfurile
 myPoint myPoints[] = {
   // cele 4 varfuri din colturi 
@@ -116,24 +116,14 @@ myLine myLines[1000];
  
 void initLines()
 {
-  for(int i = 1; i < nrOfPoints; i++)
+  for(int i = 0; i < nrOfPoints; i++)
   {
-    myLines[i-1] = myLine(myPoints[i-1], myPoints[i]);
+    myLines[i] = myLine(myPoints[i], myPoints[(i + 1) % nrOfPoints]);
   }
 }
 
 void CreateVBO(void)
 {
-
-  // culorile varfurilor din colturi
-  GLfloat Colors[] = {
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-  1.0f, 0.0f, 0.0f, 1.0f,
-  };
- 
-
   // se creeaza un buffer nou
   glGenBuffers(1, &VboId);
   // este setat ca buffer curent
@@ -147,16 +137,26 @@ void CreateVBO(void)
   // se activeaza lucrul cu atribute; atributul 0 = pozitie
   glEnableVertexAttribArray(0);
   // 
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);  
+  
+ }
+void CreateVBO2(void)
+{
+  // se creeaza un buffer nou
+  glGenBuffers(1, &VboId);
+  // este setat ca buffer curent
+  glBindBuffer(GL_ARRAY_BUFFER, VboId);
+  // punctele sunt "copiate" in bufferul curent
+  glBufferData(GL_ARRAY_BUFFER, sizeof(myLines), myLines, GL_STATIC_DRAW);
+  
+  // se creeaza / se leaga un VAO (Vertex Array Object) - util cand se utilizeaza mai multe VBO
+  glGenVertexArrays(1, &VaoId);
+  glBindVertexArray(VaoId);
+  // se activeaza lucrul cu atribute; atributul 0 = pozitie
+  glEnableVertexAttribArray(0);
+  // 
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
  
-  // un nou buffer, pentru culoare
-  glGenBuffers(1, &ColorBufferId);
-  glBindBuffer(GL_ARRAY_BUFFER, ColorBufferId);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Colors), Colors, GL_STATIC_DRAW);
-  // atributul 1 =  culoare
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-  
   
  }
 void DestroyVBO(void)
@@ -209,15 +209,20 @@ void RenderFunction(void)
   // desenare puncte din colturi si axe
   glPointSize(10.0);
   codCol=0;
+
+  CreateVBO();
   glUniform1i(codColLocation, codCol);
   glDrawArrays(GL_POINTS, 0, nrOfPoints);
-  glDrawArrays(GL_LINES, 0, nrOfPoints);
+  
+  CreateVBO2();
+  glDrawArrays(GL_LINES, 0, nrOfPoints * 2);
 
-  codCol=2;
-  glUniform1i(codColLocation, codCol);
-  glDrawArrays(GL_LINES, 1, nrOfPoints - 1);
+  // codCol=2;
+  // glUniform1i(codColLocation, codCol);
+  // glDrawArrays(GL_LINES, 1, nrOfPoints * 2);
 
   glutPostRedisplay();
+  glutSwapBuffers();
   glFlush ( );
 }
 void Cleanup(void)
@@ -231,7 +236,7 @@ int main(int argc, char* argv[])
 initLines();
 
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
+  glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
   glutInitWindowPosition (100,100); 
   glutInitWindowSize(width,height); 
   glutCreateWindow("Utilizarea glm pentru transformari"); 
