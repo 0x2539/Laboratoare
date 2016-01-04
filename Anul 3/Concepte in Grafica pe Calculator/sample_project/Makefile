@@ -1,12 +1,12 @@
 CC=g++
-CFLAGS= -std=c++11 -w
+CFLAGS= -std=c++11 -w -pthread
 INCLUDES = -Iinclude/
-SOURCES=src/main.cpp 
+SOURCES=src/main.cpp src/loadShaders.cpp
 LIBS = 
 LIB_SO = 
 
 EXECUTABLE=Main
-LDFLAGS += -lGL -lGLU -lglut
+LDFLAGS += -lpthread -lGL -lGLU -lglut
 OBJECTS=obj/Unix/x64/glew.o 
 
 LBITS := $(shell getconf LONG_BIT)

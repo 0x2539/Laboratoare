@@ -1,7 +1,8 @@
 CC=g++
 CFLAGS= -std=c++11 -w
 INCLUDES = -Iinclude/
-SOURCES=src/main.cpp 
+SOURCES=src/main.cpp src/loadShaders.cpp 
+LIBS = 
 LIB_SO = 
 
 EXECUTABLE=Main
