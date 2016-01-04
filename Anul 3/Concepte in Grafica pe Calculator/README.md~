@@ -1,0 +1,1 @@
+Acestea sunt laboratoarele din semestrul 2 Universitatea Bucuresti, Facultatea de Matematica si Informatica.
