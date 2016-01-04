@@ -1,12 +1,19 @@
-// Codul sursa este adaptat dupa OpenGLBook.com
-
+ 
 #include <stdlib.h> // necesare pentru citirea shader-elor
 #include <stdio.h>
+#include <math.h>
+#include <iostream>
 #include <GL/glew.h> // glew apare inainte de freeglut
 #include <GL/freeglut.h> // nu trebuie uitat freeglut.h
-#include "myHeader.h"
-#include <iostream> 
 
+#include "myHeader.h"
+
+#include "glm/glm.hpp"  
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
+using namespace std;
   
 //////////////////////////////////////
 
@@ -15,33 +22,115 @@ GLuint
   VboId,
   ColorBufferId,
   ProgramId,
-  matrLocation;
- float m[4][4];
+  myMatrixLocation,
+  matrScaleLocation,
+  matrTranslLocation,
+  matrRotlLocation,
+  codColLocation;
+ 
+glm::mat4 myMatrix, resizeMatrix, matrTransl, matrScale, matrRot; 
+
+
+int codCol;
+ float PI=3.141592;
+
+ int width=1280, height=720;
 
  
 
  
-void CreateVBO1(void)
+void displayMatrix ( )
 {
-  // varfurile 
-  GLfloat Vertices[] = {
-    -0.2f, -0.2f, 0.0f, 1.0f,
-     0.0f,  0.2f, 0.0f, 1.0f,
-     0.2f, -0.2f, 0.0f, 1.0f,
-	-0.8f, -0.8f, 0.0f, 1.0f,
-     0.0f,  0.8f, 0.0f, 1.0f,
-     0.8f, -0.8f, 0.0f, 1.0f
-  };
-   
+  // for (int ii = 0; ii < 4; ii++)
+  // {
+    // for (int jj = 0; jj < 4; jj++)
+    //cout <<  myMatrix[ii][jj] << "  " ;
+    //cout << endl;
+  // };
+  //cout << "\n";
+  
+};
 
-  // culorile, ca atribute ale varfurilor
+
+class myPoint {
+private:
+  GLfloat x, y, z1, z2;
+public:
+  myPoint()
+  {
+  }
+  myPoint(GLfloat x, GLfloat y)
+  {
+    this->x = x;
+    this->y = y;
+    this->z1 = 0.0f;
+    this->z2 = 1.0f;
+  }
+
+  myPoint(GLfloat x, GLfloat y, GLfloat z1, GLfloat z2)
+  {
+    this->x = x;
+    this->y = y;
+    this->z1 = z1;
+    this->z2 = z2;
+  }
+};
+
+class myLine {
+private:
+  myPoint point1, point2;
+public:
+  myLine()
+  {
+
+  }
+  myLine(myPoint point1, myPoint point2)
+  {
+    this->point1 = point1;
+    this->point2 = point2;
+  }
+};
+
+int nrOfPoints = 7;
+//varfurile
+myPoint myPoints[] = {
+  // cele 4 varfuri din colturi 
+  myPoint(-390.0f, -290.0f),
+   myPoint(390.0f,  -290.0f),
+   myPoint(390.0f, 290.0f),
+ myPoint(-390.0f, 290.0f),
+ // varfuri pentru axe
+  myPoint(-400.0f, 0.0f),
+    myPoint(400.0f,  0.0f),
+    myPoint(0.0f, -300.0f),
+  myPoint(0.0f, 300.0f),
+  // varfuri pentru dreptunghi
+ //   myPoint(-50.0f,  -50.0f, 0.0f, 1.0f),
+ //   myPoint(50.0f, -50.0f, 0.0f, 1.0f),
+ // myPoint(50.0f,  50.0f, 0.0f, 1.0f),
+ // myPoint(-50.0f,  50.0f, 0.0f, 1.0f),
+};
+
+//varfurile
+myLine myLines[1000];
+ 
+void initLines()
+{
+  for(int i = 1; i < nrOfPoints; i++)
+  {
+    myLines[i-1] = myLine(myPoints[i-1], myPoints[i]);
+  }
+}
+
+void CreateVBO(void)
+{
+
+  // culorile varfurilor din colturi
   GLfloat Colors[] = {
     1.0f, 0.0f, 0.0f, 1.0f,
     0.0f, 1.0f, 0.0f, 1.0f,
     0.0f, 0.0f, 1.0f, 1.0f,
-	1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
+  1.0f, 0.0f, 0.0f, 1.0f,
   };
  
 
@@ -50,57 +139,7 @@ void CreateVBO1(void)
   // este setat ca buffer curent
   glBindBuffer(GL_ARRAY_BUFFER, VboId);
   // punctele sunt "copiate" in bufferul curent
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-  
-  // se creeaza / se leaga un VAO (Vertex Array Object) - util cand se utilizeaza mai multe VBO
-  glGenVertexArrays(1, &VaoId);
-  glBindVertexArray(VaoId);
-  // se activeaza lucrul cu atribute; atributul 0 = pozitie
-  glEnableVertexAttribArray(0);
-  // 
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
- 
-  // un nou buffer, pentru culoare
-  glGenBuffers(1, &ColorBufferId);
-  glBindBuffer(GL_ARRAY_BUFFER, ColorBufferId);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Colors), Colors, GL_STATIC_DRAW);
-  // atributul 1 =  culoare
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-  
-  
- }  
-void CreateVBO2(void)
-{
-  // varfurile 
-  GLfloat Vertices[] = {
-    -20.0f, -2.0f, 0.0f, 1.0f,
-     0.0f,  2.0f, 0.0f, 1.0f,
-     20.0f, -2.0f, 0.0f, 1.0f,
-	-80.0f, -8.0f, 0.0f, 1.0f,
-     0.0f,  8.0f, 0.0f, 1.0f,
-     80.0f, -8.0f, 0.0f, 1.0f
-  };
-   
- 
-
-  // culorile, ca atribute ale varfurilor
-  GLfloat Colors[] = {
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-	1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-  };
- 
-
-  // se creeaza un buffer nou
-  glGenBuffers(1, &VboId);
-  // este setat ca buffer curent
-  glBindBuffer(GL_ARRAY_BUFFER, VboId);
-  // punctele sunt "copiate" in bufferul curent
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(myPoints), myPoints, GL_STATIC_DRAW);
   
   // se creeaza / se leaga un VAO (Vertex Array Object) - util cand se utilizeaza mai multe VBO
   glGenVertexArrays(1, &VaoId);
@@ -139,9 +178,11 @@ void DestroyVBO(void)
 
 void CreateShaders(void)
 {
-  ProgramId=LoadShaders("src/05_02_Shader.vert", "src/05_02_Shader.frag");
+  ProgramId=LoadShaders("src/08_01_Shader.vert", "src/08_01_Shader.frag");
   glUseProgram(ProgramId);
 }
+
+ 
 void DestroyShaders(void)
 {
   glDeleteProgram(ProgramId);
@@ -149,29 +190,34 @@ void DestroyShaders(void)
  
 void Initialize(void)
 {
+  myMatrix = glm::mat4(1.0f);
+  
+  resizeMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(1.f/width, 1.f/height, 1.0));
 
-   
-    m[0][0]=0.01; m[1][1]=0.1; m[2][2]=1; m[3][3]=1; // diagonala principala
-	m[0][1]=0; m[0][2]=0; m[0][3]=0;
-	m[1][0]=0; m[1][2]=0; m[1][3]=0;
-	m[2][0]=0; m[2][1]=0; m[2][3]=0;
-	m[3][0]=0; m[3][1]=0; m[3][2]=0;
-	
+  CreateVBO();
+  CreateShaders(); 
 
   glClearColor(1.0f, 1.0f, 1.0f, 0.0f); // culoarea de fond a ecranului
 }
 void RenderFunction(void)
 {
   glClear(GL_COLOR_BUFFER_BIT);
-  //CreateVBO1();
-  CreateVBO2();
-  CreateShaders();
-  glUniformMatrix4fv(matrLocation, 1, GL_TRUE, &m[0][0]);
-  glPointSize(20.0);
-  glEnable (GL_CULL_FACE); // cull face
-  glCullFace (GL_FRONT);
-  glDrawArrays(GL_POINTS, 3, 3);
-  glDrawArrays(GL_TRIANGLES, 0, 3);
+  myMatrix=resizeMatrix;
+ 
+  myMatrixLocation = glGetUniformLocation(ProgramId, "myMatrix");
+  glUniformMatrix4fv(myMatrixLocation, 1, GL_FALSE,  &myMatrix[0][0]);
+  // desenare puncte din colturi si axe
+  glPointSize(10.0);
+  codCol=0;
+  glUniform1i(codColLocation, codCol);
+  glDrawArrays(GL_POINTS, 0, nrOfPoints);
+  glDrawArrays(GL_LINES, 0, nrOfPoints);
+
+  codCol=2;
+  glUniform1i(codColLocation, codCol);
+  glDrawArrays(GL_LINES, 1, nrOfPoints - 1);
+
+  glutPostRedisplay();
   glFlush ( );
 }
 void Cleanup(void)
@@ -182,19 +228,19 @@ void Cleanup(void)
 
 int main(int argc, char* argv[])
 {
-std::cout<<"hello\n";
+initLines();
+
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
-  glutInitWindowPosition (100,100); // pozitia initiala a ferestrei
-  glutInitWindowSize(600,400); //dimensiunile ferestrei
-  glutCreateWindow("Transformari"); // titlul ferestrei
-  glewInit(); // nu uitati de initializare glew; trebuie initializat inainte de a a initializa desenarea
+  glutInitWindowPosition (100,100); 
+  glutInitWindowSize(width,height); 
+  glutCreateWindow("Utilizarea glm pentru transformari"); 
+  glewInit(); 
   Initialize( );
   glutDisplayFunc(RenderFunction);
   glutCloseFunc(Cleanup);
   glutMainLoop();
   
-  return 0;
+  
 }
-
 
