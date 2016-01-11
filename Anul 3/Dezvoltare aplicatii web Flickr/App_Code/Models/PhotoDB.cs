@@ -10,9 +10,10 @@ namespace Models
     {
         public int ID { get; set; }
         public string PhotoType { get; set; }
-        public Byte[] Photo { get; set; }
+        public string Photo { get; set; }
         public string Category { get; set; }
         public string Description { get; set; }
+        public int Album { get; set; }
 
     }
     public class PhotoDBContext : DbContext
