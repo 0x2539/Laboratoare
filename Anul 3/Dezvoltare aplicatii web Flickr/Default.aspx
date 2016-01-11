@@ -41,10 +41,9 @@
   <form id="Form1" runat="server">
   <h3>
     Using Forms Authentication
-      <asp:Button ID="ButtonSignIn" runat="server" Text="Sign In" style="float:right" OnClick="SignIn_Click"/>
-      <asp:Button ID="ButtonProfile" runat="server" Text="Profile" style="float:right"/>
-    <asp:Button ID="ButtonSignOut" OnClick="SignOut_Click" 
-       Text="Sign Out" runat="server" style="float:right"/>
+        <asp:Button ID="ButtonSignIn" runat="server" Text="Sign In" style="float:right; margin:10px" OnClick="SignIn_Click"/>
+        <asp:Button ID="ButtonProfile" runat="server" Text="Profile" style="float:right; margin:10px"/>
+        <asp:Button ID="ButtonSignOut" runat="server" Text="Sign Out" style="float:right; margin:10px" OnClick="SignOut_Click"/>
       </h3>
   <asp:Label ID="Welcome" runat="server" />
       <p>
