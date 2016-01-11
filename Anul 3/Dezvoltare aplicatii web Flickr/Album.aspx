@@ -13,6 +13,7 @@
     void Page_Load(object sender, EventArgs e)
     {
         int.TryParse(Request.QueryString["albumId"], out currentId);
+        
         if (albumIsValid())
         {
             if (!IsPostBack)
@@ -24,6 +25,16 @@
         else
         {
             AlbumNameTextBox.Text = "Invalid";
+
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();// XDSPhoto.GetXmlDocument();
+            doc.LoadXml("<Photos></Photos>");
+
+            doc.Save(Server.MapPath("~/App_Data/temp.xml"));
+            //XDSPhoto.Data = doc.InnerXml;
+            XDSPhoto.DataFile = Server.MapPath("~/App_Data/temp.xml");
+            //XDSPhoto.Data = xDoc.InnerXml;
+            XDSPhoto.DataBind();
+            XDSPhoto.Save();
         }
     }
     
@@ -282,11 +293,14 @@
         System.Diagnostics.Debug.WriteLine(xml.Value);
         System.Diagnostics.Debug.WriteLine("file: " + doc.InnerXml);
         
-        System.Xml.XmlDocument xDoc = new System.Xml.XmlDocument();
+        //System.Xml.XmlDocument xDoc = new System.Xml.XmlDocument();
         //xDoc.LoadXml(xml.Value);
 
-        XDSPhoto.Data = doc.InnerXml;
+        doc.Save(Server.MapPath("~/App_Data/temp.xml"));
+        //XDSPhoto.Data = doc.InnerXml;
+        XDSPhoto.DataFile = Server.MapPath("~/App_Data/temp.xml");
         XDSPhoto.DataBind();
+        XDSPhoto.Save();
         //XDSMovie.Data
     }
     
@@ -303,7 +317,7 @@
             cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = currentId;
             System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
 
-            if (myReader.Read())
+            while (myReader.Read())
             {
                 photosList.Add(readerToPhotoDB(myReader));
                 System.Diagnostics.Debug.WriteLine("getting item " + readerToPhotoDB(myReader).ID);
@@ -368,6 +382,9 @@
         writer.WriteEndElement();
         writer.WriteEndElement();
     }*/
+    void FileUploadButton_Click(object sender, EventArgs e)
+    {
+    }
 </script>
 
 <body>
@@ -384,7 +401,7 @@
       <asp:Label ID="Status" runat="server" Text="Upload" />
     <div>
     
-        <asp:FileUpload ID="FileUpload1" runat="server" />
+        <input id="FileUpload1" type="file" runat="server" class="Cntrl1" />
         <asp:Button ID="btnUpload" runat="server" Text="Upload"
                             OnClick="btnUpload_Click" />
             <asp:Image ID="uploadedImage" runat="server" ImageUrl="~/Assets/empty_image.jpg" Width="100" Height="100"/>
