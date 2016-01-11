@@ -4,16 +4,94 @@
 <script runat="server">
   void Logon_Click(object sender, EventArgs e)
   {
-    if ((UserEmail.Text == "jchen@contoso.com") && 
-            (UserPass.Text == "37Yj*99Ps"))
+      if (login())
       {
-          FormsAuthentication.RedirectFromLoginPage 
-             (UserEmail.Text, Persist.Checked);
+          
+    //  }
+    //if ((UserEmail.Text == "jchen@contoso.com") && 
+    //        (UserPass.Text == "37Yj*99Ps"))
+    //  {
+    //      FormsAuthentication.RedirectFromLoginPage
+    //         (UserEmail.Text, Persist.Checked);
+          Msg.Text = "Valid credentials.";
       }
       else
       {
           Msg.Text = "Invalid credentials. Please try again.";
       }
+  }
+
+  void Register_Click(object sender, EventArgs e)
+  {
+      if(!userExists())
+      {
+          System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+          con.Open();
+          //insert the file into database
+          string strQuery = "insert into [dbo].[users]([username], [password]) values (@username, @password)";
+          System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+          cmd.Parameters.Add("@username", System.Data.SqlDbType.VarChar).Value = UserEmail.Text;
+          cmd.Parameters.Add("@password", System.Data.SqlDbType.VarChar).Value = UserPass.Text;
+          cmd.ExecuteNonQuery();
+          con.Close();            
+      }
+      else
+      {
+          Msg.Text = "User already exists.";
+      }
+  }
+  
+  Boolean login()
+  {
+      //System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;User Instance=True;");
+      System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+      //String strConnString = System.Configuration.ConfigurationManager.ConnectionStrings["PhotoDBContext"].ConnectionString;
+      //System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(strConnString);
+      con.Open();
+      //insert the file into database
+      string strQuery = "select [username] from [dbo].[users] where username=@username and password=@password";
+      System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+      cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.VarChar).Value = UserEmail.Text;
+      cmd.Parameters.AddWithValue("@password", System.Data.SqlDbType.VarChar).Value = UserPass.Text;
+      System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+      if (myReader.Read())
+      {
+          // Assuming your desired value is the name as the 3rd field
+          myReader.Close();
+          con.Close();
+          return true;
+      }
+
+      myReader.Close();
+      con.Close();
+      return false;     
+  }
+  
+  Boolean userExists()
+  {
+      //System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;User Instance=True;");
+      System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+      //String strConnString = System.Configuration.ConfigurationManager.ConnectionStrings["PhotoDBContext"].ConnectionString;
+      //System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(strConnString);
+      con.Open();
+      //insert the file into database
+      string strQuery = "select [username] from [dbo].[users] where username=@username";
+      System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+      cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.VarChar).Value = UserEmail.Text;
+      System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+      if (myReader.Read())
+      {
+          // Assuming your desired value is the name as the 3rd field
+          myReader.Close();
+          con.Close();
+          return true;
+      }
+
+      myReader.Close();
+      con.Close();
+      return false;     
   }
 </script>
 <html>
@@ -60,6 +138,8 @@
       </tr>
     </table>
     <asp:Button ID="Submit1" OnClick="Logon_Click" Text="Log On" 
+       runat="server" />
+    <asp:Button ID="SubmitRegister" OnClick="Register_Click" Text="Register" 
        runat="server" />
     <p>
       <asp:Label ID="Msg" ForeColor="red" runat="server" />

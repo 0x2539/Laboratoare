@@ -51,17 +51,21 @@
             System.IO.BinaryReader br = new System.IO.BinaryReader(fs);
             Byte[] bytes = br.ReadBytes((Int32)fs.Length);
 
-            //insert the file into database
-            string strQuery = "insert into [dbo].[photos]([photoType], [photo]) values (@photoType, @photo)";
-            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery);
-            cmd.Parameters.Add("@photoType", System.Data.SqlDbType.VarChar).Value = contenttype;
-            cmd.Parameters.Add("@photo", System.Data.SqlDbType.Binary).Value = bytes;
             uploadedImage.ImageUrl = filePath;
             Status.Text = filePath;
             
             string base64String = Convert.ToBase64String(bytes, 0, bytes.Length);
-            uploadedImage.ImageUrl = "data:image/jpg;base64," + base64String;
+            uploadedImage.ImageUrl = "data:image/" + ext + ";base64," + base64String;
             uploadedImage.Visible = true;
+
+            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=MY-PC;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;User Instance=True;");
+            con.Open();
+            //insert the file into database
+            string strQuery = "insert into [dbo].[photos]([photoType], [photo]) values (@photoType, @photo)";
+            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery);
+            cmd.Parameters.Add("@photoType", System.Data.SqlDbType.VarChar).Value = ext;//contenttype;
+            cmd.Parameters.Add("@photo", System.Data.SqlDbType.Binary).Value = bytes;
+            con.Close();
             
             //InsertUpdateData(cmd);
             //Status.ForeColor = System.Drawing.Color.Green;
