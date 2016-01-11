@@ -17,6 +17,8 @@ void main(void)
 		out_Color=vec4 (0.3, 0.3, 0.7, 0.0);
 	if ( codCol==4 )
 		out_Color=vec4 (0.6, 0.6, 0.6, 0.0);
+	if ( codCol==1 )
+		out_Color=vec4 (1.0, 0.2, 0.0, 0.0);
 
   }
  

@@ -120,6 +120,16 @@ public:
     initPoints();
   }
 
+  float getX()
+  {
+    return x;
+  }
+
+  float getY()
+  {
+    return y;
+  }
+
   void update()
   {
     int distance = radius * index;
@@ -186,9 +196,126 @@ public:
   }
 };
 
+class CelestialObjectItem {
+private:
+  float x, y, speed;
+  int index;
+  float radius;
+  CelestialObject *celestialObject;
+  int num_segments = 10;
+  myPoint myPoints[10];
+  void initPoints()
+  {
+    for(int i = 0; i < num_segments; i++)
+    {
+        float theta = 2.0f * 3.1415926f * float(i) / float(num_segments);//get the current angle
+
+        GLfloat x = radius * cosf(theta);//calculate the x component
+        GLfloat y = radius * sinf(theta);//calculate the y component
+
+        myPoints[i] = myPoint(x, y);//output vertex
+    }
+  }
+public:
+  CelestialObjectItem()
+  {
+    x = 0;
+    y = 0;
+  }
+  CelestialObjectItem(int index, float radius, float speed)
+  {
+    this->index = index;
+    this->radius = radius;
+    this->speed = speed;
+    this->celestialObject = new CelestialObject();
+    initPoints();
+  }
+  CelestialObjectItem(int index, float radius, float speed, CelestialObject *celestialObject)
+  {
+    this->index = index;
+    this->radius = radius;
+    this->speed = speed;
+    this->celestialObject = celestialObject;
+    initPoints();
+  }
+
+  float lastRadius = 0;
+  float lastSinRadius = 0;
+  void update()
+  {
+    int speed = 20;
+    float sinRadius = sin(currentTime * speed) > 0 ? sin(currentTime * speed) : sin(currentTime * speed) * -1;
+    if(index == 1) {
+      radius = sinRadius;
+    }
+    else{
+      radius = 1-sinRadius;// cos(currentTime * speed) > 0 ? cos(currentTime * speed) : cos(currentTime * speed) * -1; 
+    }
+    if(lastSinRadius > sinRadius && sinRadius > 0.0f)
+    {
+      if(index == 1) {
+        radius = 1;
+      }
+    }
+    else
+    if(lastSinRadius < sinRadius && sinRadius < 1.0f)
+    {
+      if(index == 0) {
+        radius = 0;
+      }
+    }
+    lastRadius = radius;
+    lastSinRadius = sinRadius;
+    x = celestialObject->getX() + 30;
+    y = celestialObject->getY() + 30;
+    //int distance = radius * index;
+    //x = cos(currentTime * speed) * distance + celestialObject->x;
+    //y = sin(currentTime * speed) * distance + celestialObject->y;
+  }
+
+  void draw()
+  {
+    // se creeaza un buffer nou
+    glGenBuffers(1, &VboId);
+    // este setat ca buffer curent
+    glBindBuffer(GL_ARRAY_BUFFER, VboId);
+    // punctele sunt "copiate" in bufferul curent
+    glBufferData(GL_ARRAY_BUFFER, sizeof(myPoints), myPoints, GL_STATIC_DRAW);
+    
+    // se creeaza / se leaga un VAO (Vertex Array Object) - util cand se utilizeaza mai multe VBO
+    glGenVertexArrays(1, &VaoId);
+    glBindVertexArray(VaoId);
+    // se activeaza lucrul cu atribute; atributul 0 = pozitie
+    glEnableVertexAttribArray(0);
+    // 
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);  
+
+    // matrTransl=glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0));
+    matrTransl=glm::translate<GLfloat>(glm::vec3(x, y, 0.0f));
+    matrRot=glm::rotate(glm::mat4(1.0f), currentTime * 4 * (index+1), glm::vec3(0.0, 0.0, 1.0));
+    resizeMatrix= glm::scale(glm::mat4(1.0), glm::vec3(radius/width, radius/height, 1.0));
+    myMatrix=resizeMatrix*matrTransl*matrRot;
+    resizeMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(1.f/width, 1.f/height, 1.0));
+    
+    myMatrixLocation = glGetUniformLocation(ProgramId, "myMatrix");
+    glUniformMatrix4fv(myMatrixLocation, 1, GL_FALSE,  glm::value_ptr(myMatrix));
+
+    if(sin(currentTime * speed) > 0) {
+      glUniform1i(codColLocation, index);
+    }
+    else{
+      glUniform1i(codColLocation, 1); 
+    }
+    glDrawArrays(GL_TRIANGLE_FAN, 0, num_segments);
+  }
+};
+
 CelestialObject *star = new CelestialObject(0, 150, 0.5f);
 CelestialObject *planet = new CelestialObject(5, 100, 1, star);
 CelestialObject *satellite = new CelestialObject(4, 50, 4, planet);
+
+CelestialObjectItem *starSpot = new CelestialObjectItem(1, 50, 0.5f, star);
+CelestialObjectItem *starSpot2 = new CelestialObjectItem(0, 50, 0.5f, star);
 
 void DestroyVBO(void)
 {
@@ -239,6 +366,10 @@ void RenderFunction(void)
   planet->draw();
   star->update();
   star->draw();
+  starSpot->update();
+  starSpot->draw();
+  starSpot2->update();
+  starSpot2->draw();
   // myMatrix=resizeMatrix;
  
   // myMatrixLocation = glGetUniformLocation(ProgramId, "myMatrix");
