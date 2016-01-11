@@ -68,7 +68,7 @@
             cmd.Parameters.Add("@userId", System.Data.SqlDbType.Int).Value = userId;
             //System.Data.SqlClient.SqlParameter theId = cmd.Parameters.Add("@[Id]", System.Data.SqlDbType.Int);
             //theId.Direction = System.Data.ParameterDirection.Output;
-            object response = cmd.ExecuteNonQuery();
+            object response = cmd.ExecuteScalar();
             id = response != null ? (int)response : -2;
             con.Close();
             //id = Convert.ToInt64(theId.Value);

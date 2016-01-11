@@ -90,73 +90,84 @@
 
     void btnUpload_Click(object sender, EventArgs e)
     {
-        // Read the file and convert it to Byte Array
-        string filePath = FileUpload1.PostedFile.FileName;
-        string filename = System.IO.Path.GetFileName(filePath);
-        string ext = System.IO.Path.GetExtension(filename);
-        string contenttype = String.Empty;
-
-        //Set the contenttype based on File Extension
-        switch (ext)
+        if (CategoryTextBox.Text.Length > 0 && DescriptionTextBox.Text.Length > 0)
         {
-            case ".doc":
-                contenttype = "application/vnd.ms-word";
-                break;
-            case ".docx":
-                contenttype = "application/vnd.ms-word";
-                break;
-            case ".xls":
-                contenttype = "application/vnd.ms-excel";
-                break;
-            case ".xlsx":
-                contenttype = "application/vnd.ms-excel";
-                break;
-            case ".jpg":
-                contenttype = "image/jpg";
-                break;
-            case ".png":
-                contenttype = "image/png";
-                break;
-            case ".gif":
-                contenttype = "image/gif";
-                break;
-            case ".pdf":
-                contenttype = "application/pdf";
-                break;
-        }
-        if (contenttype != String.Empty)
-        {
+            // Read the file and convert it to Byte Array
+            string filePath = FileUpload1.PostedFile.FileName;
+            string filename = System.IO.Path.GetFileName(filePath);
+            string ext = System.IO.Path.GetExtension(filename);
+            string contenttype = String.Empty;
 
-            System.IO.Stream fs = FileUpload1.PostedFile.InputStream;
-            System.IO.BinaryReader br = new System.IO.BinaryReader(fs);
-            Byte[] bytes = br.ReadBytes((Int32)fs.Length);
+            //Set the contenttype based on File Extension
+            switch (ext)
+            {
+                case ".doc":
+                    contenttype = "application/vnd.ms-word";
+                    break;
+                case ".docx":
+                    contenttype = "application/vnd.ms-word";
+                    break;
+                case ".xls":
+                    contenttype = "application/vnd.ms-excel";
+                    break;
+                case ".xlsx":
+                    contenttype = "application/vnd.ms-excel";
+                    break;
+                case ".jpg":
+                    contenttype = "image/jpg";
+                    break;
+                case ".png":
+                    contenttype = "image/png";
+                    break;
+                case ".gif":
+                    contenttype = "image/gif";
+                    break;
+                case ".pdf":
+                    contenttype = "application/pdf";
+                    break;
+            }
+            if (contenttype != String.Empty)
+            {
 
-            uploadedImage.ImageUrl = filePath;
-            Status.Text = filePath;
-            
-            string base64String = Convert.ToBase64String(bytes, 0, bytes.Length);
-            uploadedImage.ImageUrl = "data:image/" + ext + ";base64," + base64String;
-            uploadedImage.Visible = true;
+                System.IO.Stream fs = FileUpload1.PostedFile.InputStream;
+                System.IO.BinaryReader br = new System.IO.BinaryReader(fs);
+                Byte[] bytes = br.ReadBytes((Int32)fs.Length);
 
-            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
-            con.Open();
-            //insert the file into database
-            string strQuery = "insert into [dbo].[photos] ([photoType], [photo], [album]) values (@photoType, @photo, @albumId)";
-            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery);
-            cmd.Parameters.Add("@photoType", System.Data.SqlDbType.VarChar).Value = ext;//contenttype;
-            cmd.Parameters.Add("@photo", System.Data.SqlDbType.Binary).Value = bytes;
-            cmd.Parameters.Add("@albumId", System.Data.SqlDbType.Int).Value = currentId;
-            con.Close();
-            
-            //InsertUpdateData(cmd);
-            Status.ForeColor = System.Drawing.Color.Green;
-            Status.Text = "File Uploaded Successfully";
+                uploadedImage.ImageUrl = filePath;
+                Status.Text = filePath;
+
+                string base64String = Convert.ToBase64String(bytes, 0, bytes.Length);
+                uploadedImage.ImageUrl = "data:image/" + ext + ";base64," + base64String;
+                uploadedImage.Visible = true;
+
+                System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+                con.Open();
+                //insert the file into database
+                string strQuery = "insert into [dbo].[photos] ([photoType], [photo], [album], [category], [description]) values (@photoType, @photo, @albumId, @category, @description)";
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                cmd.Parameters.Add("@photoType", System.Data.SqlDbType.VarChar).Value = ext;//contenttype;
+                cmd.Parameters.Add("@photo", System.Data.SqlDbType.Binary).Value = bytes;
+                cmd.Parameters.Add("@albumId", System.Data.SqlDbType.Int).Value = currentId;
+                cmd.Parameters.Add("@category", System.Data.SqlDbType.VarChar).Value = CategoryTextBox.Text;
+                cmd.Parameters.Add("@description", System.Data.SqlDbType.VarChar).Value = DescriptionTextBox.Text;
+                cmd.ExecuteNonQuery();
+                con.Close();
+
+                //InsertUpdateData(cmd);
+                Status.ForeColor = System.Drawing.Color.Green;
+                Status.Text = "File Uploaded Successfully";
+            }
+            else
+            {
+                Status.ForeColor = System.Drawing.Color.Red;
+                Status.Text = "File format not recognised." +
+                  " Upload Image/Word/PDF/Excel formats";
+            }
         }
         else
         {
-            //Status.ForeColor = System.Drawing.Color.Red;
-            Status.Text = "File format not recognised." +
-              " Upload Image/Word/PDF/Excel formats";
+            Status.ForeColor = System.Drawing.Color.Red;
+            Status.Text = "Complete category";
         }
     }
   
@@ -234,10 +245,30 @@
       <asp:Label ID="Status" runat="server" Text="Upload" />
     <div>
     
-    <asp:FileUpload ID="FileUpload1" runat="server" />
-    <asp:Button ID="btnUpload" runat="server" Text="Upload"
-                        OnClick="btnUpload_Click" />
-        <asp:Image ID="uploadedImage" runat="server" ImageUrl="~/Assets/empty_image.jpg" Width="100" Height="100"/>
+        <asp:FileUpload ID="FileUpload1" runat="server" />
+        <asp:Button ID="btnUpload" runat="server" Text="Upload"
+                            OnClick="btnUpload_Click" />
+            <asp:Image ID="uploadedImage" runat="server" ImageUrl="~/Assets/empty_image.jpg" Width="100" Height="100"/>
+        <div>
+            
+          <asp:TextBox ID="CategoryTextBox" runat="server" />
+          <asp:RequiredFieldValidator ID="RequiredFieldValidator1" 
+            ControlToValidate="CategoryTextBox"
+            Display="Dynamic" 
+            ErrorMessage="Cannot be empty." 
+            runat="server" />
+        </div>
+        
+        <div>
+            
+          <asp:TextBox ID="DescriptionTextBox" runat="server" />
+          <asp:RequiredFieldValidator ID="RequiredFieldValidator2" 
+            ControlToValidate="DescriptionTextBox"
+            Display="Dynamic" 
+            ErrorMessage="Cannot be empty." 
+            runat="server" />
+        </div>
+
     </div>
     </form>
 </body>
