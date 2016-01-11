@@ -5,6 +5,9 @@
 </head>
 
 <script runat="server">
+
+    int userId;
+
   void Page_Load(object sender, EventArgs e)
   {
       if (Context.User.Identity.IsAuthenticated)
@@ -14,6 +17,8 @@
           ButtonProfile.Visible = true;
           ButtonSignOut.Visible = true;
           ButtonSignIn.Visible = false;
+
+          userId = getUserId();
       }
       else
       {
@@ -24,10 +29,41 @@
           ButtonSignIn.Visible = true;
       }
   }
+  
+  int getUserId()
+  {
+      try
+      {
+          System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+          con.Open();
+          string strQuery = "select [Id] from [dbo].[users] where [username]=@username";
+          System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+          cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.Int).Value = Context.User.Identity.GetUserName();
+          System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+          if (myReader.Read())
+          {
+              // Assuming your desired value is the name as the 3rd field
+              int id = -1;
+              int.TryParse(myReader["Id"].ToString(), out id);
+              myReader.Close();
+              con.Close();
+              return id;
+          }
+
+          myReader.Close();
+          con.Close();
+      }
+      catch (Exception ex)
+      {
+          System.Diagnostics.Debug.WriteLine(ex.ToString());
+      }
+      return -1;
+  }
 
   void Profile_Click(object sender, EventArgs e)
   {
-      Response.Redirect("Profile.aspx");
+      Response.Redirect("MyProfile.aspx?userId=" + userId);
   }
 
   void SignIn_Click(object sender, EventArgs e)

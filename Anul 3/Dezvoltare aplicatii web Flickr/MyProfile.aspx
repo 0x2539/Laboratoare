@@ -5,6 +5,48 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     
 <script runat="server">
+
+    int userId;
+
+    void Page_Load(object sender, EventArgs e)
+    {
+        int.TryParse(Request.QueryString["userId"], out userId);
+        
+        if(userIsValid())
+        {
+            
+        }
+    }
+    
+    Boolean userIsValid()
+    {
+        try
+        {
+            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+            con.Open();
+            string strQuery = "select [username] from [dbo].[users] where [Id]=@id";
+            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+            cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = userId;
+            System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+            if (myReader.Read())
+            {
+                // Assuming your desired value is the name as the 3rd field
+                myReader.Close();
+                con.Close();
+                return true;
+            }
+
+            myReader.Close();
+            con.Close();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
+        return false;
+    }
+    
     void btnNewAlbum_Click(object sender, EventArgs e)
     {
         Response.Redirect("Album.aspx?albumId=" + createNewAlbum().ToString());
@@ -20,13 +62,14 @@
             System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
             con.Open();
             //insert the file into database
-            string strQuery = "insert into [dbo].[albums] ([name]) values (@name);SELECT CAST(scope_identity() AS int)";
+            string strQuery = "insert into [dbo].[albums] ([name], [user]) values (@name, @userId);SELECT CAST(scope_identity() AS int)";
             System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
             cmd.Parameters.Add("@name", System.Data.SqlDbType.VarChar).Value = " ";
+            cmd.Parameters.Add("@userId", System.Data.SqlDbType.Int).Value = userId;
             //System.Data.SqlClient.SqlParameter theId = cmd.Parameters.Add("@[Id]", System.Data.SqlDbType.Int);
             //theId.Direction = System.Data.ParameterDirection.Output;
-            //cmd.ExecuteNonQuery();
-            id = cmd.ExecuteScalar() != null ? (int)cmd.ExecuteScalar() : -2;
+            object response = cmd.ExecuteNonQuery();
+            id = response != null ? (int)response : -2;
             con.Close();
             //id = Convert.ToInt64(theId.Value);
         }

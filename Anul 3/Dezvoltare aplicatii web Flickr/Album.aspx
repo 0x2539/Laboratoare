@@ -138,24 +138,25 @@
             uploadedImage.ImageUrl = "data:image/" + ext + ";base64," + base64String;
             uploadedImage.Visible = true;
 
-            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=MY-PC;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;User Instance=True;");
+            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
             con.Open();
             //insert the file into database
-            string strQuery = "insert into [dbo].[photos]([photoType], [photo]) values (@photoType, @photo)";
+            string strQuery = "insert into [dbo].[photos] ([photoType], [photo], [album]) values (@photoType, @photo, @albumId)";
             System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery);
             cmd.Parameters.Add("@photoType", System.Data.SqlDbType.VarChar).Value = ext;//contenttype;
             cmd.Parameters.Add("@photo", System.Data.SqlDbType.Binary).Value = bytes;
+            cmd.Parameters.Add("@albumId", System.Data.SqlDbType.Int).Value = currentId;
             con.Close();
             
             //InsertUpdateData(cmd);
-            //Status.ForeColor = System.Drawing.Color.Green;
-            //Status.Text = "File Uploaded Successfully";
+            Status.ForeColor = System.Drawing.Color.Green;
+            Status.Text = "File Uploaded Successfully";
         }
         else
         {
             //Status.ForeColor = System.Drawing.Color.Red;
-            //Status.Text = "File format not recognised." +
-            //  " Upload Image/Word/PDF/Excel formats";
+            Status.Text = "File format not recognised." +
+              " Upload Image/Word/PDF/Excel formats";
         }
     }
   
