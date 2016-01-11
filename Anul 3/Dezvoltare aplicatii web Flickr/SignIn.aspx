@@ -2,6 +2,14 @@
 <%@ Import Namespace="System.Web.Security" %>
 
 <script runat="server">
+    void Page_Load(object sender, EventArgs e)
+    {
+        if (Context.User.Identity.IsAuthenticated)
+        {
+            Response.Redirect("Default.aspx");
+        }
+    }
+    
   void Logon_Click(object sender, EventArgs e)
   {
       if (login())
@@ -11,9 +19,9 @@
     //if ((UserEmail.Text == "jchen@contoso.com") && 
     //        (UserPass.Text == "37Yj*99Ps"))
     //  {
-    //      FormsAuthentication.RedirectFromLoginPage
-    //         (UserEmail.Text, Persist.Checked);
-          Msg.Text = "Valid credentials.";
+          FormsAuthentication.RedirectFromLoginPage(UserEmail.Text, Persist.Checked);
+          Response.Redirect("Default.aspx");
+          //Msg.Text = "Valid credentials.";
       }
       else
       {
