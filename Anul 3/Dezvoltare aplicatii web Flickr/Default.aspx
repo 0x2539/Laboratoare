@@ -25,6 +25,11 @@
       }
   }
 
+  void Profile_Click(object sender, EventArgs e)
+  {
+      Response.Redirect("Profile.aspx");
+  }
+
   void SignIn_Click(object sender, EventArgs e)
   {
     Response.Redirect("SignIn.aspx");
@@ -42,7 +47,7 @@
   <h3>
     Using Forms Authentication
         <asp:Button ID="ButtonSignIn" runat="server" Text="Sign In" style="float:right; margin:10px" OnClick="SignIn_Click"/>
-        <asp:Button ID="ButtonProfile" runat="server" Text="Profile" style="float:right; margin:10px"/>
+        <asp:Button ID="ButtonProfile" runat="server" Text="Profile" style="float:right; margin:10px" OnClick="Profile_Click"/>
         <asp:Button ID="ButtonSignOut" runat="server" Text="Sign Out" style="float:right; margin:10px" OnClick="SignOut_Click"/>
       </h3>
   <asp:Label ID="Welcome" runat="server" />

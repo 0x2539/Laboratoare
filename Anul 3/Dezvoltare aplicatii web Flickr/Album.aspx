@@ -8,6 +8,86 @@
 </head>
     
 <script runat="server">
+
+    int currentId = -1;
+
+    void Page_Load(object sender, EventArgs e)
+    {
+        int.TryParse(Request.QueryString["albumId"], out currentId);
+        if (albumIsValid())
+        {
+            if (!IsPostBack)
+            {
+                AlbumNameTextBox.Text = getAlbumName();
+            }
+        }
+        else
+        {
+            AlbumNameTextBox.Text = "Invalid";
+        }
+    }
+    
+    Boolean albumIsValid()
+    {
+
+        try
+        {
+            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+            con.Open();
+            string strQuery = "select [name] from [dbo].[albums] where [Id]=@id";
+            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+            cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = currentId;
+            System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+            if (myReader.Read())
+            {
+                // Assuming your desired value is the name as the 3rd field
+                myReader.Close();
+                con.Close();
+                return true;
+            }
+
+            myReader.Close();
+            con.Close();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
+        return false;
+    }
+    
+    String getAlbumName()
+    {
+
+        try
+        {
+            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+            con.Open();
+            string strQuery = "select [name] from [dbo].[albums] where [Id]=@id";
+            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+            cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = currentId;
+            System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+            if (myReader.Read())
+            {
+                // Assuming your desired value is the name as the 3rd field
+                String name = myReader["name"].ToString();
+                myReader.Close();
+                con.Close();
+                return name;
+            }
+
+            myReader.Close();
+            con.Close();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
+        return "";
+    }
+
     void btnUpload_Click(object sender, EventArgs e)
     {
         // Read the file and convert it to Byte Array
@@ -102,12 +182,55 @@
             con.Dispose();
         }
     }
+    
+    void AlbumNameTextBox_TextChanged(object sender, EventArgs e)
+    {
+    }
+
+    void ButtonSaveAlbumName_Click(object sender, EventArgs e)
+    {
+        System.Diagnostics.Debug.WriteLine("clicked " + AlbumNameTextBox.Text + " " + AlbumNameTextBox.Text.Length);
+        if (AlbumNameTextBox.Text.Length > 0)
+        {
+            try
+            {
+                System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+                con.Open();
+                //insert the file into database
+                string strQuery = "update [dbo].[albums] set [name]=@name where [Id]=@id";
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                cmd.Parameters.Add("@name", System.Data.SqlDbType.VarChar).Value = AlbumNameTextBox.Text;
+                cmd.Parameters.Add("@id", System.Data.SqlDbType.Int).Value = currentId;
+                //System.Data.SqlClient.SqlParameter theId = cmd.Parameters.Add("@[Id]", System.Data.SqlDbType.Int);
+                //theId.Direction = System.Data.ParameterDirection.Output;
+                cmd.ExecuteNonQuery();
+                con.Close();
+                //id = Convert.ToInt64(theId.Value);
+            }
+            catch (Exception ex)
+            {
+                //Response.Write(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+        }
+        else
+        {
+        }
+    }
 </script>
 
 <body>
     
+    <form id="form1" runat="server" defaultbutton="DoNothing">
+        <asp:Button ID="DoNothing" runat="server" Enabled="false" style="display: none;" />
+            <div>
+            <asp:Panel ID="Panel1" runat="server" DefaultButton="ButtonSaveAlbumName">
+                <asp:TextBox ID="AlbumNameTextBox" runat="server"></asp:TextBox>
+                <asp:Button ID="ButtonSaveAlbumName" runat="server" onclick="ButtonSaveAlbumName_Click" style="display:none"/>
+            </asp:Panel>
+        </div>
+    
       <asp:Label ID="Status" runat="server" Text="Upload" />
-    <form id="form1" runat="server">
     <div>
     
     <asp:FileUpload ID="FileUpload1" runat="server" />
