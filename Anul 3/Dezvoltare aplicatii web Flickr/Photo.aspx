@@ -10,6 +10,7 @@
     int currentId = -1;
     int userId;
     int ownerId;
+    int albumId;
 
     void Page_Load(object sender, EventArgs e)
     {
@@ -96,6 +97,7 @@
                     Models.PhotoDB photo = readerToPhotoDB(myReader);
                     uploadedImage.ImageUrl = "data:image/" + photo.PhotoType + ";base64," + photo.Photo;
                     ownerId = photo.User;
+                    albumId = photo.Album;
                     
                     myReader.Close();
                     con.Close();
@@ -122,6 +124,7 @@
         newPhoto.Category = myReader["category"].ToString();
         newPhoto.Description = myReader["description"].ToString();
         newPhoto.User = int.Parse(myReader["user"].ToString());
+        newPhoto.Album = int.Parse(myReader["album"].ToString());
 
         //considering "photo's" bytes are on 2nd column
         byte[] Photo = (byte[])myReader.GetValue(2);
@@ -228,6 +231,25 @@
         insertComment();
         loadComments();
         commentTextArea.InnerText = "";
+    }
+
+    void btnDeletePhoto_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+            con.Open();
+            string strQuery = "delete from [dbo].[photos] where [Id]=@id";
+            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+            cmd.Parameters.Add("@id", System.Data.SqlDbType.Int).Value = currentId;
+            cmd.ExecuteNonQuery();
+            con.Close();
+            Response.Redirect("~/Album?albumId=" + albumId);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
     }
     
     void insertComment()
@@ -337,7 +359,7 @@
     <form id="form1" runat="server">
             <textarea id="commentTextArea" runat="server" Visible='<%# canAddComment() %>' name="message" rows="5" cols="100" ></textarea> <br/>
             <asp:Button ID="btnAddComment" runat="server" Visible='<%# canAddComment() %>' Text="Add Comment" style="margin:20px" OnClick="btnAddComment_Click" />
-            <asp:Button ID="btnDeletePhoto" runat="server" Visible='<%# canDeletePhoto() && canAddComment() %>' Text="Delete Photo" style="margin:20px" OnClick="btnAddComment_Click" />
+            <asp:Button ID="btnDeletePhoto" runat="server" Visible='<%# canDeletePhoto() && canAddComment() %>' Text="Delete Photo" style="margin:20px" OnClick="btnDeletePhoto_Click" />
     </form>
 
         <asp:XmlDataSource ID="XDSComment" runat="server" XPath="Comments/Comment" EnableCaching="false"></asp:XmlDataSource>
