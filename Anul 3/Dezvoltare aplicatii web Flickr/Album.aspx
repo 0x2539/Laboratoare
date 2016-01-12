@@ -10,6 +10,7 @@
 
     int currentId = -1;
     int userId;
+    int ownerId;
 
     void Page_Load(object sender, EventArgs e)
     {
@@ -38,6 +39,8 @@
             XDSPhoto.DataBind();
             XDSPhoto.Save();
         }
+
+        form1.Visible = canModify();
     }
 
     int getUserId()
@@ -81,7 +84,7 @@
         {
             System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
             con.Open();
-            string strQuery = "select [name] from [dbo].[albums] where [Id]=@id";
+            string strQuery = "select [user] from [dbo].[albums] where [Id]=@id";
             System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
             cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = currentId;
             System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
@@ -89,6 +92,7 @@
             if (myReader.Read())
             {
                 // Assuming your desired value is the name as the 3rd field
+                ownerId = int.Parse(myReader["user"].ToString());
                 myReader.Close();
                 con.Close();
                 return true;
@@ -133,118 +137,6 @@
             System.Diagnostics.Debug.WriteLine(ex.ToString());
         }
         return "";
-    }
-
-    void btnUpload_Click(object sender, EventArgs e)
-    {
-        if (CategoryTextBox.Text.Length > 0 && DescriptionTextBox.Text.Length > 0)
-        {
-            // Read the file and convert it to Byte Array
-            string filePath = FileUpload1.PostedFile.FileName;
-            string filename = System.IO.Path.GetFileName(filePath);
-            string ext = System.IO.Path.GetExtension(filename);
-            string contenttype = String.Empty;
-
-            //Set the contenttype based on File Extension
-            switch (ext)
-            {
-                case ".doc":
-                    contenttype = "application/vnd.ms-word";
-                    break;
-                case ".docx":
-                    contenttype = "application/vnd.ms-word";
-                    break;
-                case ".xls":
-                    contenttype = "application/vnd.ms-excel";
-                    break;
-                case ".xlsx":
-                    contenttype = "application/vnd.ms-excel";
-                    break;
-                case ".jpg":
-                    contenttype = "image/jpg";
-                    break;
-                case ".png":
-                    contenttype = "image/png";
-                    break;
-                case ".gif":
-                    contenttype = "image/gif";
-                    break;
-                case ".pdf":
-                    contenttype = "application/pdf";
-                    break;
-            }
-            if (contenttype != String.Empty)
-            {
-
-                System.IO.Stream fs = FileUpload1.PostedFile.InputStream;
-                System.IO.BinaryReader br = new System.IO.BinaryReader(fs);
-                Byte[] bytes = br.ReadBytes((Int32)fs.Length);
-
-                uploadedImage.ImageUrl = filePath;
-                Status.Text = filePath;
-
-                string base64String = Convert.ToBase64String(bytes, 0, bytes.Length);
-                uploadedImage.ImageUrl = "data:image/" + ext + ";base64," + base64String;
-                uploadedImage.Visible = true;
-
-                System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
-                con.Open();
-                //insert the file into database
-                string strQuery = "insert into [dbo].[photos] ([photoType], [photo], [album], [category], [description], [user]) values (@photoType, @photo, @albumId, @category, @description, @userId);SELECT CAST(scope_identity() AS int)";
-                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
-                cmd.Parameters.Add("@photoType", System.Data.SqlDbType.VarChar).Value = ext;//contenttype;
-                cmd.Parameters.Add("@photo", System.Data.SqlDbType.Binary).Value = bytes;
-                cmd.Parameters.Add("@albumId", System.Data.SqlDbType.Int).Value = currentId;
-                cmd.Parameters.Add("@category", System.Data.SqlDbType.VarChar).Value = CategoryTextBox.Text;
-                cmd.Parameters.Add("@description", System.Data.SqlDbType.VarChar).Value = DescriptionTextBox.Text;
-                cmd.Parameters.Add("@userId", System.Data.SqlDbType.Int).Value = userId;
-                cmd.ExecuteNonQuery();
-                con.Close();
-
-                //InsertUpdateData(cmd);
-                Status.ForeColor = System.Drawing.Color.Green;
-                Status.Text = "File Uploaded Successfully";
-            }
-            else
-            {
-                Status.ForeColor = System.Drawing.Color.Red;
-                Status.Text = "File format not recognised." +
-                  " Upload Image/Word/PDF/Excel formats";
-            }
-        }
-        else
-        {
-            Status.ForeColor = System.Drawing.Color.Red;
-            Status.Text = "Complete category";
-        }
-    }
-  
-    private Boolean InsertUpdateData(System.Data.SqlClient.SqlCommand cmd)
-    {
-        String strConnString = System.Configuration.ConfigurationManager.ConnectionStrings["conString"].ConnectionString;
-        System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(strConnString);
-        cmd.CommandType = System.Data.CommandType.Text;
-        cmd.Connection = con;
-        try
-        {
-            con.Open();
-            cmd.ExecuteNonQuery();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Response.Write(ex.Message);
-            return false;
-        }
-        finally
-        {
-            con.Close();
-            con.Dispose();
-        }
-    }
-    
-    void AlbumNameTextBox_TextChanged(object sender, EventArgs e)
-    {
     }
 
     void ButtonSaveAlbumName_Click(object sender, EventArgs e)
@@ -388,39 +280,19 @@
         return newPhoto;
     }
     
-    /*private void loadPhotos(object sender, EventArgs e)
-    {
-        System.Xml.XmlTextWriter writer = new System.Xml.XmlTextWriter("product.xml", System.Text.Encoding.UTF8);
-        writer.WriteStartDocument(true);
-        writer.Formatting = Formatting.Indented;
-        writer.Indentation = 2;
-        writer.WriteStartElement("Table");
-        createNode("1", "Product 1", "1000", writer);
-        createNode("2", "Product 2", "2000", writer);
-        createNode("3", "Product 3", "3000", writer);
-        createNode("4", "Product 4", "4000", writer);
-        writer.WriteEndElement();
-        writer.WriteEndDocument();
-        writer.Close();
-        MessageBox.Show("XML File created ! ");
-    }
     
-    private void createNode(string pID, string pName, string pPrice, System.Xml.XmlTextWriter writer)
+    Boolean canModify()
     {
-        writer.WriteStartElement("Product");
-        writer.WriteStartElement("Product_id");
-        writer.WriteString(pID);
-        writer.WriteEndElement();
-        writer.WriteStartElement("Product_name");
-        writer.WriteString(pName);
-        writer.WriteEndElement();
-        writer.WriteStartElement("Product_price");
-        writer.WriteString(pPrice);
-        writer.WriteEndElement();
-        writer.WriteEndElement();
-    }*/
-    void FileUploadButton_Click(object sender, EventArgs e)
+        if(userId == ownerId)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    void AddNewPhotoButton_Click(object sender, EventArgs e)
     {
+        Response.Redirect("~/NewPhoto?albumId=" + currentId);
     }
 </script>
 
@@ -430,51 +302,23 @@
         <asp:Button ID="DoNothing" runat="server" Enabled="false" style="display: none;" />
             <div>
             <asp:Panel ID="Panel1" runat="server" DefaultButton="ButtonSaveAlbumName">
-                <asp:TextBox ID="AlbumNameTextBox" runat="server"></asp:TextBox>
+                Album's Name:<asp:TextBox ID="AlbumNameTextBox" runat="server"></asp:TextBox>
                 <asp:Button ID="ButtonSaveAlbumName" runat="server" onclick="ButtonSaveAlbumName_Click" style="display:none"/>
             </asp:Panel>
         </div>
     
-      <asp:Label ID="Status" runat="server" Text="Upload" />
-    <div>
-    
-        <input id="FileUpload1" type="file" runat="server" class="Cntrl1" />
-        <asp:Button ID="btnUpload" runat="server" Text="Upload"
-                            OnClick="btnUpload_Click" />
-            <asp:Image ID="uploadedImage" runat="server" ImageUrl="~/Assets/empty_image.jpg" Width="100" Height="100"/>
-        <div>
-            
-          <asp:TextBox ID="CategoryTextBox" runat="server" />
-          <asp:RequiredFieldValidator ID="RequiredFieldValidator1" 
-            ControlToValidate="CategoryTextBox"
-            Display="Dynamic" 
-            ErrorMessage="Cannot be empty." 
-            runat="server" />
-        </div>
-        
-        <div>
-            
-          <asp:TextBox ID="DescriptionTextBox" runat="server" />
-          <asp:RequiredFieldValidator ID="RequiredFieldValidator2" 
-            ControlToValidate="DescriptionTextBox"
-            Display="Dynamic" 
-            ErrorMessage="Cannot be empty." 
-            runat="server" />
-        </div>
-
-    </div>
+        <asp:Button ID="AddNewPhotoButton" runat="server" Text="Add new photo" OnClick="AddNewPhotoButton_Click" />
     </form>
-
         <asp:XmlDataSource ID="XDSPhoto" runat="server" XPath="Photos/Photo"></asp:XmlDataSource>
 
         <asp:Repeater ID="Repeater1" runat="server" DataSourceID="XDSPhoto">
             <ItemTemplate>
-                <div style="background-color: #cceeff; width: 460px; height:250px">
-                    <div style="float: left; width: 140px; padding: 5px" DataSource='<%# XPathSelect("Photo") %>'>
+                    <div style="background-color: #cceeff; clear: left; width: auto; padding: 5px; margin:10px; display:inline-block" DataSource='<%# XPathSelect("Photo") %>'>
                         <!--<img runat="server" id="MovieImg" width="120" height="190" src='<%# "~/Images/" + XPath("@ID") + ".jpg" %>' />-->
-                        <asp:Image ID="Img1" runat="server" ImageUrl='<%# "data:image/" + XPath("@photoType") + ";base64," + XPath("@photo") %>' Width="100" Height="100"/>
+                        <asp:Image ID="Img1" style="float:left;" runat="server" ImageUrl='<%# "data:image/" + XPath("@photoType") + ";base64," + XPath("@photo") %>' Width="400" Height="300"/>
+                        <div style="float:right; margin-top:10%; margin-left:20px; margin-right:20px">'<%# XPath("@category") %>'</div>
+                        <asp:HyperLink ID="HyperLink1" NavigateUrl='<%# "~/Photo.aspx?photoId=" + XPath("@Id") %>' runat="server" style="float:right; margin-top:30%; margin-left:20px; margin-right:20px">'<%# XPath("@description") %>'</asp:HyperLink>
                     </div>
-                </div>
             </ItemTemplate>
             <SeparatorTemplate>
                 <br />
