@@ -1,10 +1,8 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/MasterPagePhoto.master" AutoEventWireup="true" CodeFile="Photo.aspx.cs" Inherits="Photo" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
-<!DOCTYPE html>
+<script src="Scripts/jquery-1.10.2.min.js" ></script>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-    
 <script runat="server">
 
     int currentId = -1;
@@ -38,6 +36,16 @@
             //XDSPhoto.Data = xDoc.InnerXml;
             XDSComment.DataBind();
             XDSComment.Save();
+            
+            String imageData = "/Assets/empty_image.jpg";
+            //Page.ClientScript.RegisterStartupScript(this.GetType(), "loadImage", string.Format("document.getElementById(\"uploadedImage\").src = {0};alert('ceva');", imageData), true);
+            //Page.ClientScript.RegisterStartupScript(this.GetType(), "cevaAlerta", string.Format("<script type=text/javascript>alert('ceva');</" + "/script>", imageData), true);
+            StringBuilder cstext1 = new StringBuilder();
+            //cstext1.Append("<script type='text/javascript' > alert('ceva2'); </");
+            cstext1.Append("<script type=text/javascript > $(document).ready(function() { document.getElementById('uploadedImage').src = '" + imageData + "';}); </");
+            cstext1.Append("script>");
+            Page.ClientScript.RegisterStartupScript(typeof(Page), "some", cstext1.ToString());
+            System.Diagnostics.Debug.WriteLine("sent empty image");
         }
         btnAddComment.DataBind();
         btnDeletePhoto.DataBind();
@@ -95,7 +103,14 @@
                 {
                     // Assuming your desired value is the name as the 3rd field
                     Models.PhotoDB photo = readerToPhotoDB(myReader);
-                    uploadedImage.ImageUrl = "data:image/" + photo.PhotoType + ";base64," + photo.Photo;
+                    //uploadedImage.Attributes["src"] = "data:image/" + photo.PhotoType + ";base64," + photo.Photo;
+                    String imageData = "data:image/" + photo.PhotoType + ";base64," + photo.Photo;
+                    StringBuilder cstext1 = new StringBuilder();
+                    //cstext1.Append("<script type='text/javascript' > alert('ceva2'); </");
+                    cstext1.Append("<script type=text/javascript > $(document).ready(function() { document.getElementById('uploadedImage').src = '" + imageData + "';}); </");
+                    cstext1.Append("script>");
+                    Page.ClientScript.RegisterStartupScript(typeof(Page), "some", cstext1.ToString());
+                    System.Diagnostics.Debug.WriteLine("sent some image");
                     ownerId = photo.User;
                     albumId = photo.Album;
                     
@@ -349,36 +364,110 @@
     {
         return "ceva";
     }
+
+    public static String SetName(string name)
+    {
+        return "Your String";
+    }
     
 </script>
 
-<body>
     
-            <asp:Image ID="uploadedImage" runat="server" ImageUrl="~/Assets/empty_image.jpg" Width="800" Height="600"/>
-    
-    <form id="form1" runat="server">
-            <textarea id="commentTextArea" runat="server" Visible='<%# canAddComment() %>' name="message" rows="5" cols="100" ></textarea> <br/>
+
+    <link href='../css/jquery.guillotine.css' media='all' rel='stylesheet'>
+  <link href='demo.css' media='all' rel='stylesheet'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, target-densitydpi=device-dpi'>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <div id='content'>
+    <div class='frame'>
+      <img id='uploadedImage' src='http://lorempixel.com/640/480/city' />
+            <!--<asp:Image ID="uploadedImage3" runat="server" ImageUrl="~/Assets/empty_image.jpg"/>-->
+    </div>
+
+    <div id='controls'>
+      <button id='rotate_left'  type='button' title='Rotate left'> &lt; </button>
+      <button id='zoom_out'     type='button' title='Zoom out'> - </button>
+      <button id='fit'          type='button' title='Fit image'> [ ]  </button>
+      <button id='zoom_in'      type='button' title='Zoom in'> + </button>
+      <button id='rotate_right' type='button' title='Rotate right'> &gt; </button>
+    </div>
+        
+        <div>
+      <button id='saveButton' type='button'>Save</button>
+            </div>
+
+    <ul id='data'>
+      <div class='column'>
+        <li>x: <span id='x'></span></li>
+        <li>y: <span id='y'></span></li>
+      </div>
+      <div class='column'>
+        <li>width:  <span id='w'></span></li>
+        <li>height: <span id='h'></span></li>
+      </div>
+      <div class='column'>
+        <li>scale: <span id='scale'></span></li>
+        <li>angle: <span id='angle'></span></li>
+      </div>
+    </ul>
+
+        <form id="form1" runat="server">
+            <textarea id="commentTextArea" runat="server" Visible='<%# canAddComment() %>' name="message" rows="5" cols="70" ></textarea> <br/>
             <asp:Button ID="btnAddComment" runat="server" Visible='<%# canAddComment() %>' Text="Add Comment" style="margin:20px" OnClick="btnAddComment_Click" />
             <asp:Button ID="btnDeletePhoto" runat="server" Visible='<%# canDeletePhoto() && canAddComment() %>' Text="Delete Photo" style="margin:20px" OnClick="btnDeletePhoto_Click" />
     </form>
-
+        <div>
         <asp:XmlDataSource ID="XDSComment" runat="server" XPath="Comments/Comment" EnableCaching="false"></asp:XmlDataSource>
 
         <asp:Repeater ID="Repeater1" runat="server" DataSourceID="XDSComment">
             <ItemTemplate>
-                    <div style="display: inline-block; width: 800px; margin:10px" DataSource='<%# XPathSelect("Comment") %>'>
-                        <asp:HyperLink ID="HyperLinkUser" NavigateUrl='<%# "~/MyProfile.aspx?userId=" + XPath("@Id") %>' runat="server" style="float:left; margin:10px"><%#getUsernameById(XPath("@user").ToString())%></asp:HyperLink>
-                        <asp:HyperLink ID="HyperLink1" Visible='<%# canDeleteComment(XPath("@user").ToString()) %>' NavigateUrl='<%# "~/DeleteComment.aspx?commentId=" + XPath("@Id") %>' runat="server" style="float:right; margin:10px">Delete</asp:HyperLink>
-                        <div style="background-color: #cceeff; width: auto; height:auto; padding: 25px"><%#XPath("@text")%></div>
+                    <div style="display:block; width: auto; margin:10px" DataSource='<%# XPathSelect("Comment") %>'>
+                        <asp:HyperLink ID="HyperLinkUser" NavigateUrl='<%# "~/MyProfile.aspx?userId=" + XPath("@Id") %>' runat="server" style="float:left; display:block;margin:10px"><%#getUsernameById(XPath("@user").ToString())%></asp:HyperLink>
+                        <asp:HyperLink ID="HyperLink1" Visible='<%# canDeleteComment(XPath("@user").ToString()) %>' NavigateUrl='<%# "~/DeleteComment.aspx?commentId=" + XPath("@Id") %>' runat="server" style="float:right; margin:10px;display:block;">Delete</asp:HyperLink>
+                        <div style="background-color: #cceeff; display:block; text-align: left;width: auto; height:auto; padding: 25px"><%#XPath("@text")%></div>
                     </div>
             </ItemTemplate>
             <SeparatorTemplate>
                 <br />
             </SeparatorTemplate>
         </asp:Repeater>
+    </div>
+  </div>
+
+  <script src='http://code.jquery.com/jquery-1.11.0.min.js'></script>
+  <script src='../js/jquery.guillotine.js'></script>
+  <script type='text/javascript'>
+      jQuery(function () {
+          var picture = $('#uploadedImage');
+
+          // Make sure the image is completely loaded before calling the plugin
+          picture.one('load', function () {
+              // Initialize plugin (with custom event)
+              picture.guillotine({ eventOnChange: 'guillotinechange' });
+
+              // Display inital data
+              var data = picture.guillotine('getData');
+              for (var key in data) { $('#' + key).html(data[key]); }
+
+              // Bind button actions
+              $('#rotate_left').click(function () { picture.guillotine('rotateLeft'); });
+              $('#rotate_right').click(function () { picture.guillotine('rotateRight'); });
+              $('#fit').click(function () { picture.guillotine('fit'); });
+              $('#zoom_in').click(function () { picture.guillotine('zoomIn'); });
+              $('#zoom_out').click(function () { picture.guillotine('zoomOut'); });
+
+              // Update data on change
+              picture.on('guillotinechange', function (ev, data, action) {
+                  data.scale = parseFloat(data.scale.toFixed(4));
+                  for (var k in data) { $('#' + k).html(data[k]); }
+              });
+          });
+
+          // Make sure the 'load' event is triggered at least once (for cached images)
+          if (picture.prop('complete')) picture.trigger('load')
+      });
+  </script>
     
-    
-</body>
-</html>
     
 </asp:Content>
