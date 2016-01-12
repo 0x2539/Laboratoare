@@ -14,6 +14,7 @@ namespace Models
         public string Category { get; set; }
         public string Description { get; set; }
         public int Album { get; set; }
+        public int User { get; set; }
 
     }
     public class PhotoDBContext : DbContext

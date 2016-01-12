@@ -9,10 +9,12 @@
 <script runat="server">
 
     int currentId = -1;
+    int userId;
 
     void Page_Load(object sender, EventArgs e)
     {
         int.TryParse(Request.QueryString["albumId"], out currentId);
+        userId = getUserId();
         
         if (albumIsValid())
         {
@@ -36,6 +38,40 @@
             XDSPhoto.DataBind();
             XDSPhoto.Save();
         }
+    }
+
+    int getUserId()
+    {
+        if (Context.User.Identity.IsAuthenticated)
+        {
+            try
+            {
+                System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+                con.Open();
+                string strQuery = "select [Id] from [dbo].[users] where [username]=@username";
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.Int).Value = Context.User.Identity.GetUserName();
+                System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+                if (myReader.Read())
+                {
+                    // Assuming your desired value is the name as the 3rd field
+                    int id = -1;
+                    int.TryParse(myReader["Id"].ToString(), out id);
+                    myReader.Close();
+                    con.Close();
+                    return id;
+                }
+
+                myReader.Close();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+        }
+        return -1;
     }
     
     Boolean albumIsValid()
@@ -154,13 +190,14 @@
                 System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
                 con.Open();
                 //insert the file into database
-                string strQuery = "insert into [dbo].[photos] ([photoType], [photo], [album], [category], [description]) values (@photoType, @photo, @albumId, @category, @description)";
+                string strQuery = "insert into [dbo].[photos] ([photoType], [photo], [album], [category], [description], [user]) values (@photoType, @photo, @albumId, @category, @description, @userId);SELECT CAST(scope_identity() AS int)";
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
                 cmd.Parameters.Add("@photoType", System.Data.SqlDbType.VarChar).Value = ext;//contenttype;
                 cmd.Parameters.Add("@photo", System.Data.SqlDbType.Binary).Value = bytes;
                 cmd.Parameters.Add("@albumId", System.Data.SqlDbType.Int).Value = currentId;
                 cmd.Parameters.Add("@category", System.Data.SqlDbType.VarChar).Value = CategoryTextBox.Text;
                 cmd.Parameters.Add("@description", System.Data.SqlDbType.VarChar).Value = DescriptionTextBox.Text;
+                cmd.Parameters.Add("@userId", System.Data.SqlDbType.Int).Value = userId;
                 cmd.ExecuteNonQuery();
                 con.Close();
 

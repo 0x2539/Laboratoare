@@ -29,34 +29,37 @@
           ButtonSignIn.Visible = true;
       }
   }
-  
+
   int getUserId()
   {
-      try
+      if (Context.User.Identity.IsAuthenticated)
       {
-          System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
-          con.Open();
-          string strQuery = "select [Id] from [dbo].[users] where [username]=@username";
-          System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
-          cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.Int).Value = Context.User.Identity.GetUserName();
-          System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
-
-          if (myReader.Read())
+          try
           {
-              // Assuming your desired value is the name as the 3rd field
-              int id = -1;
-              int.TryParse(myReader["Id"].ToString(), out id);
+              System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+              con.Open();
+              string strQuery = "select [Id] from [dbo].[users] where [username]=@username";
+              System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+              cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.Int).Value = Context.User.Identity.GetUserName();
+              System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+              if (myReader.Read())
+              {
+                  // Assuming your desired value is the name as the 3rd field
+                  int id = -1;
+                  int.TryParse(myReader["Id"].ToString(), out id);
+                  myReader.Close();
+                  con.Close();
+                  return id;
+              }
+
               myReader.Close();
               con.Close();
-              return id;
           }
-
-          myReader.Close();
-          con.Close();
-      }
-      catch (Exception ex)
-      {
-          System.Diagnostics.Debug.WriteLine(ex.ToString());
+          catch (Exception ex)
+          {
+              System.Diagnostics.Debug.WriteLine(ex.ToString());
+          }
       }
       return -1;
   }
