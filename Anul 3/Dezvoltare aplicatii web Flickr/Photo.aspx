@@ -171,7 +171,7 @@
         //System.Xml.XmlDocument xDoc = new System.Xml.XmlDocument();
         //xDoc.LoadXml(xml.Value);
 
-        doc.Save(Server.MapPath("~/App_Data/temp.xml"));
+        doc.Save(Server.MapPath("~/App_Data/tempPhoto.xml"));
         //XDSPhoto.Data = doc.InnerXml;
         XDSComment.DataFile = Server.MapPath("~/App_Data/tempPhoto.xml");
         XDSComment.DataBind();
@@ -187,7 +187,7 @@
         {
             System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
             con.Open();
-            string strQuery = "select * from [dbo].[comments] where [photo]=@id";
+            string strQuery = "select * from [dbo].[comments] where [photo]=@id order by [Id] desc";
             System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
             cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = currentId;
             System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
@@ -213,39 +213,120 @@
         Models.CommentDB comment = new Models.CommentDB();
 
         comment.ID = int.Parse(myReader["Id"].ToString());
-        comment.Text = myReader["text"].ToString();
+        comment.Text = myReader["text"].ToString().Replace("\n", "<br/>");
         comment.Photo = int.Parse(myReader["photo"].ToString());
         comment.User = int.Parse(myReader["user"].ToString());
 
         return comment;
     }
 
+    void btnAddComment_Click(object sender, EventArgs e)
+    {
+        insertComment();
+        loadComments();
+        commentTextArea.InnerText = "";
+    }
+    
+    void insertComment()
+    {
+        if (commentTextArea.InnerText.Length > 0)
+        {
+            try
+            {
+                System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+                con.Open();
+                //insert the file into database
+                string strQuery = "insert into [dbo].[comments] ([text], [user], [photo]) values (@text, @user, @photo);SELECT CAST(scope_identity() AS int)";
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                cmd.Parameters.Add("@text", System.Data.SqlDbType.VarChar).Value = commentTextArea.InnerText;
+                cmd.Parameters.Add("@user", System.Data.SqlDbType.Int).Value = userId;
+                cmd.Parameters.Add("@photo", System.Data.SqlDbType.Int).Value = currentId;
+                cmd.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                //Response.Write(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+        }
+        else
+        {
+        }
+    }
+
+    string getUsernameById(string id)
+    {
+        try
+        {
+            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+            con.Open();
+            string strQuery = "select [username] from [dbo].[users] where [Id]=@id order by [Id] desc";
+            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+            cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = int.Parse(id);
+            System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+            if (myReader.Read())
+            {
+                string name = myReader["username"].ToString();
+                myReader.Close();
+                con.Close();
+                return name;
+            }
+
+            myReader.Close();
+            con.Close();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
+        return "";
+    }
+    
+    bool canDelete(String commenterId)
+    {
+        int id = int.Parse(commenterId);
+        //if the current user is the owner of the photo
+        if(userId == ownerId)
+        {
+            return true;
+        }
+        //if the current user wrote the comment
+        if(userId == id)
+        {
+            return true;
+        }
+        return false;
+    }
+    
 </script>
 
 <body>
     
             <asp:Image ID="uploadedImage" runat="server" ImageUrl="~/Assets/empty_image.jpg" Width="800" Height="600"/>
-
+    
     <form id="form1" runat="server">
-    <div>
-    
-    </div>
+        <textarea id="commentTextArea" runat="server" name="message" rows="5" cols="100" ></textarea> <br/>
+        <asp:Button ID="btnAddComment" runat="server" Text="Add Comment" style="margin:20px" OnClick="btnAddComment_Click" />
     </form>
-    
+
         <asp:XmlDataSource ID="XDSComment" runat="server" XPath="Comments/Comment"></asp:XmlDataSource>
 
         <asp:Repeater ID="Repeater1" runat="server" DataSourceID="XDSComment">
             <ItemTemplate>
-                <div style="background-color: #cceeff; width: 460px; height:250px" DataSource='<%# XPathSelect("Comment") %>'>
-                    <div style="float: left; width: 140px; padding: 5px">
-                        <div><%#XPath("@text")%></div>
+                    <div style="display: inline-block; width: 800px; margin:10px" DataSource='<%# XPathSelect("Comment") %>'>
+                        <asp:HyperLink ID="HyperLinkUser" NavigateUrl='<%# "~/MyProfile.aspx?userId=" + XPath("@Id") %>' runat="server" style="float:left; margin:10px"><%#getUsernameById(XPath("@user").ToString())%></asp:HyperLink>
+                        <asp:HyperLink ID="HyperLink1" Visible='<%# canDelete(XPath("@user").ToString()) %>' NavigateUrl='<%# "~/DeleteComment.aspx?commentId=" + XPath("@Id") %>' runat="server" style="float:right; margin:10px">Delete</asp:HyperLink>
+                        <div style="background-color: #cceeff; width: auto; height:auto; padding: 25px"><%#XPath("@text")%></div>
                     </div>
-                </div>
             </ItemTemplate>
             <SeparatorTemplate>
                 <br />
             </SeparatorTemplate>
         </asp:Repeater>
+    
+    
 </body>
 </html>
     
