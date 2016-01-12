@@ -38,6 +38,9 @@
             XDSComment.DataBind();
             XDSComment.Save();
         }
+        btnAddComment.DataBind();
+        btnDeletePhoto.DataBind();
+        commentTextArea.DataBind();
     }
 
     int getUserId()
@@ -284,7 +287,7 @@
         return "";
     }
     
-    bool canDelete(String commenterId)
+    bool canDeleteComment(String commenterId)
     {
         int id = int.Parse(commenterId);
         //if the current user is the owner of the photo
@@ -299,6 +302,31 @@
         }
         return false;
     }
+
+    bool canDeletePhoto()
+    {
+        //if the current user is the owner of the photo
+        if (userId == ownerId && isPhotoValid())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    Boolean canAddComment()
+    {
+        //if the current user is the owner of the photo
+        if (userId != -1 && isPhotoValid())
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    String meth()
+    {
+        return "ceva";
+    }
     
 </script>
 
@@ -307,17 +335,18 @@
             <asp:Image ID="uploadedImage" runat="server" ImageUrl="~/Assets/empty_image.jpg" Width="800" Height="600"/>
     
     <form id="form1" runat="server">
-        <textarea id="commentTextArea" runat="server" name="message" rows="5" cols="100" ></textarea> <br/>
-        <asp:Button ID="btnAddComment" runat="server" Text="Add Comment" style="margin:20px" OnClick="btnAddComment_Click" />
+            <textarea id="commentTextArea" runat="server" Visible='<%# canAddComment() %>' name="message" rows="5" cols="100" ></textarea> <br/>
+            <asp:Button ID="btnAddComment" runat="server" Visible='<%# canAddComment() %>' Text="Add Comment" style="margin:20px" OnClick="btnAddComment_Click" />
+            <asp:Button ID="btnDeletePhoto" runat="server" Visible='<%# canDeletePhoto() && canAddComment() %>' Text="Delete Photo" style="margin:20px" OnClick="btnAddComment_Click" />
     </form>
 
-        <asp:XmlDataSource ID="XDSComment" runat="server" XPath="Comments/Comment"></asp:XmlDataSource>
+        <asp:XmlDataSource ID="XDSComment" runat="server" XPath="Comments/Comment" EnableCaching="false"></asp:XmlDataSource>
 
         <asp:Repeater ID="Repeater1" runat="server" DataSourceID="XDSComment">
             <ItemTemplate>
                     <div style="display: inline-block; width: 800px; margin:10px" DataSource='<%# XPathSelect("Comment") %>'>
                         <asp:HyperLink ID="HyperLinkUser" NavigateUrl='<%# "~/MyProfile.aspx?userId=" + XPath("@Id") %>' runat="server" style="float:left; margin:10px"><%#getUsernameById(XPath("@user").ToString())%></asp:HyperLink>
-                        <asp:HyperLink ID="HyperLink1" Visible='<%# canDelete(XPath("@user").ToString()) %>' NavigateUrl='<%# "~/DeleteComment.aspx?commentId=" + XPath("@Id") %>' runat="server" style="float:right; margin:10px">Delete</asp:HyperLink>
+                        <asp:HyperLink ID="HyperLink1" Visible='<%# canDeleteComment(XPath("@user").ToString()) %>' NavigateUrl='<%# "~/DeleteComment.aspx?commentId=" + XPath("@Id") %>' runat="server" style="float:right; margin:10px">Delete</asp:HyperLink>
                         <div style="background-color: #cceeff; width: auto; height:auto; padding: 25px"><%#XPath("@text")%></div>
                     </div>
             </ItemTemplate>
