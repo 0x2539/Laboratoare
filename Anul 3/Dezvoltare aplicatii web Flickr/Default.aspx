@@ -28,6 +28,8 @@
           ButtonSignOut.Visible = false;
           ButtonSignIn.Visible = true;
       }
+      
+      loadPhotos();
   }
 
   int getUserId()
@@ -64,6 +66,116 @@
       return -1;
   }
 
+
+  private void loadPhotos()
+  {
+      System.Diagnostics.Debug.WriteLine("getting list");
+      List<Models.PhotoDB> list = getPhotos();
+      System.Diagnostics.Debug.WriteLine("got list");
+
+      XElement xml = new XElement("Photos");
+
+      System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+      doc.LoadXml("<Photos></Photos>");
+      System.Xml.XmlNode rootNode = doc.SelectSingleNode("Photos");
+
+      System.Diagnostics.Debug.WriteLine("list size: " + list.Count);
+      foreach (Models.PhotoDB photo in list)
+      {
+
+          System.Diagnostics.Debug.WriteLine("list item: " + photo.ID);
+
+          System.Xml.XmlAttribute xmlPhotoId = doc.CreateAttribute("Id");
+          xmlPhotoId.Value = photo.ID.ToString();
+
+          System.Xml.XmlAttribute xmlphotoType = doc.CreateAttribute("photoType");
+          xmlphotoType.Value = photo.PhotoType;
+
+          System.Xml.XmlAttribute xmlPhoto = doc.CreateAttribute("photo");
+          xmlPhoto.Value = photo.Photo;
+
+          System.Xml.XmlAttribute xmlCategory = doc.CreateAttribute("category");
+          xmlCategory.Value = photo.Category;
+
+          System.Xml.XmlAttribute xmlDescription = doc.CreateAttribute("description");
+          xmlDescription.Value = photo.Description;
+          //XAttribute xmlPhotoPhotoType = new XAttribute("photoType", photo.PhotoType);
+          //XAttribute xmlPhotoPhoto = new XAttribute("photo", photo.Photo);
+          //XAttribute xmlPhotoCategory = new XAttribute("category", photo.Category);
+          //XAttribute xmlPhotoDescription = new XAttribute("description", photo.Description);
+          //XElement xmlPhoto = new XElement("Photo", xmlPhotoId, xmlPhotoPhotoType, xmlPhotoPhoto, xmlPhotoCategory, xmlPhotoDescription);
+          //xml.Add(xmlPhoto);
+          //System.Diagnostics.Debug.WriteLine(xmlPhoto.ToString());
+
+          System.Xml.XmlNode xmlNode = doc.CreateNode(System.Xml.XmlNodeType.Element, "Photo", "");
+          xmlNode.Attributes.Append(xmlPhotoId);
+          xmlNode.Attributes.Append(xmlphotoType);
+          xmlNode.Attributes.Append(xmlPhoto);
+          xmlNode.Attributes.Append(xmlCategory);
+          xmlNode.Attributes.Append(xmlDescription);
+          rootNode.AppendChild(xmlNode);
+      }
+
+      System.Diagnostics.Debug.WriteLine(xml.ToString());
+      System.Diagnostics.Debug.WriteLine(xml.Value);
+      System.Diagnostics.Debug.WriteLine("file: " + doc.InnerXml);
+
+      //System.Xml.XmlDocument xDoc = new System.Xml.XmlDocument();
+      //xDoc.LoadXml(xml.Value);
+
+      doc.Save(Server.MapPath("~/App_Data/tempAll.xml"));
+      //XDSPhoto.Data = doc.InnerXml;
+      XDSPhoto.DataFile = Server.MapPath("~/App_Data/tempAll.xml");
+      XDSPhoto.DataBind();
+      XDSPhoto.Save();
+      //XDSMovie.Data
+  }
+
+  private List<Models.PhotoDB> getPhotos()
+  {
+      List<Models.PhotoDB> photosList = new List<Models.PhotoDB>();
+
+      try
+      {
+          System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+          con.Open();
+          string strQuery = "select * from [dbo].[photos] order by [Id] Desc";
+          System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+          System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+          while (myReader.Read())
+          {
+              photosList.Add(readerToPhotoDB(myReader));
+          }
+
+          myReader.Close();
+          con.Close();
+      }
+      catch (Exception ex)
+      {
+          System.Diagnostics.Debug.WriteLine(ex.ToString());
+      }
+      return photosList;
+  }
+
+  private Models.PhotoDB readerToPhotoDB(System.Data.SqlClient.SqlDataReader myReader)
+  {
+      Models.PhotoDB newPhoto = new Models.PhotoDB();
+
+      newPhoto.ID = int.Parse(myReader["Id"].ToString());
+      newPhoto.PhotoType = myReader["photoType"].ToString();
+      newPhoto.Category = myReader["category"].ToString();
+      newPhoto.Description = myReader["description"].ToString();
+
+      //considering "photo's" bytes are on 2nd column
+      byte[] Photo = (byte[])myReader.GetValue(2);
+
+      string base64String = Convert.ToBase64String(Photo, 0, Photo.Length);
+      newPhoto.Photo = base64String;
+
+      return newPhoto;
+  }
+    
   void Profile_Click(object sender, EventArgs e)
   {
       Response.Redirect("MyProfile.aspx?userId=" + userId);
@@ -92,5 +204,21 @@
   <asp:Label ID="Welcome" runat="server" />
       <p>
   </form>
+    
+        <asp:XmlDataSource ID="XDSPhoto" runat="server" XPath="Photos/Photo"></asp:XmlDataSource>
+
+        <asp:Repeater ID="Repeater1" runat="server" DataSourceID="XDSPhoto">
+            <ItemTemplate>
+                    <div style="background-color: #cceeff; clear: left; width: auto; padding: 5px; margin:10px; display:inline-block" DataSource='<%# XPathSelect("Photo") %>'>
+                        <!--<img runat="server" id="MovieImg" width="120" height="190" src='<%# "~/Images/" + XPath("@ID") + ".jpg" %>' />-->
+                        <asp:Image ID="Img1" style="float:left;" runat="server" ImageUrl='<%# "data:image/" + XPath("@photoType") + ";base64," + XPath("@photo") %>' Width="400" Height="300"/>
+                        <div style="float:right; margin-top:10%; margin-left:20px; margin-right:20px">'<%# XPath("@category") %>'</div>
+                        <asp:HyperLink ID="HyperLink1" NavigateUrl='<%# "~/Photo.aspx?photoId=" + XPath("@Id") %>' runat="server" style="float:right; margin-top:30%; margin-left:20px; margin-right:20px">'<%# XPath("@description") %>'</asp:HyperLink>
+                    </div>
+            </ItemTemplate>
+            <SeparatorTemplate>
+                <br />
+            </SeparatorTemplate>
+        </asp:Repeater>
 </body>
 </html>
