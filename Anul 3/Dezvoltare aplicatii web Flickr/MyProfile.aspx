@@ -1,4 +1,6 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="MyProfile.aspx.cs" Inherits="MyProfile" %>
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPageMyProfile.master" AutoEventWireup="true" CodeFile="MyProfile.aspx.cs" Inherits="MyProfile" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
 
 <!DOCTYPE html>
 
@@ -7,6 +9,7 @@
 <script runat="server">
 
     int userId;
+    int currentId;
 
     void Page_Load(object sender, EventArgs e)
     {
@@ -14,7 +17,19 @@
         
         if(userIsValid())
         {
-            
+            loadAlbums();
+        }
+        else
+        {
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();// XDSPhoto.GetXmlDocument();
+            doc.LoadXml("<Albums></Albums>");
+
+            doc.Save(Server.MapPath("~/App_Data/tempAlbum.xml"));
+            //XDSPhoto.Data = doc.InnerXml;
+            XDSAlbums.DataFile = Server.MapPath("~/App_Data/tempAlbum.xml");
+            //XDSPhoto.Data = xDoc.InnerXml;
+            XDSAlbums.DataBind();
+            XDSAlbums.Save();
         }
     }
     
@@ -55,7 +70,6 @@
     
     long createNewAlbum()
     {
-        btnNewAlbum.Enabled = false;
         long id = -1;
         try
         {
@@ -77,77 +91,174 @@
         {
             System.Diagnostics.Debug.WriteLine(ex.ToString());
         }
-        btnNewAlbum.Enabled = true;
         return id;
+    }
+
+
+    void loadAlbums()
+    {
+        System.Diagnostics.Debug.WriteLine("getting list");
+        List<Models.AlbumDB> list = getAlbums();
+        System.Diagnostics.Debug.WriteLine("got list");
+
+        System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+        doc.LoadXml("<Albums></Albums>");
+        System.Xml.XmlNode rootNode = doc.SelectSingleNode("Albums");
+
+        System.Diagnostics.Debug.WriteLine("list size: " + list.Count);
+        foreach (Models.AlbumDB album in list)
+        {
+
+            System.Diagnostics.Debug.WriteLine("list item: " + album.ID);
+
+            System.Xml.XmlAttribute xmlId = doc.CreateAttribute("Id");
+            xmlId.Value = album.ID.ToString();
+
+            System.Xml.XmlAttribute xmlName = doc.CreateAttribute("name");
+            xmlName.Value = album.Name;
+
+            System.Xml.XmlAttribute xmlUser = doc.CreateAttribute("user");
+            xmlUser.Value = album.User.ToString();
+
+            System.Xml.XmlAttribute xmlPhoto = doc.CreateAttribute("photo");
+            xmlPhoto.Value = getPhotoFromAlbum(album.ID);
+
+
+            System.Xml.XmlNode xmlNode = doc.CreateNode(System.Xml.XmlNodeType.Element, "Album", "");
+            xmlNode.Attributes.Append(xmlId);
+            xmlNode.Attributes.Append(xmlName);
+            xmlNode.Attributes.Append(xmlUser);
+            xmlNode.Attributes.Append(xmlPhoto);
+            rootNode.AppendChild(xmlNode);
+        }
+
+        System.Diagnostics.Debug.WriteLine("file: " + doc.InnerXml);
+
+        //System.Xml.XmlDocument xDoc = new System.Xml.XmlDocument();
+        //xDoc.LoadXml(xml.Value);
+
+        doc.Save(Server.MapPath("~/App_Data/tempAlbum.xml"));
+        //XDSPhoto.Data = doc.InnerXml;
+        XDSAlbums.DataFile = Server.MapPath("~/App_Data/tempAlbum.xml");
+        XDSAlbums.DataBind();
+        XDSAlbums.Save();
+        //XDSMovie.Data
+    }
+
+    private List<Models.AlbumDB> getAlbums()
+    {
+        List<Models.AlbumDB> commentsList = new List<Models.AlbumDB>();
+
+        try
+        {
+            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+            con.Open();
+            string strQuery = "select * from [dbo].[albums] where [user]=@id order by [Id] desc";
+            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+            cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = userId;
+            System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+            while (myReader.Read())
+            {
+                commentsList.Add(readerToAlbumDB(myReader));
+                System.Diagnostics.Debug.WriteLine("getting item " + readerToAlbumDB(myReader).ID);
+            }
+
+            myReader.Close();
+            con.Close();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
+        return commentsList;
+    }
+
+    private Models.AlbumDB readerToAlbumDB(System.Data.SqlClient.SqlDataReader myReader)
+    {
+        Models.AlbumDB album = new Models.AlbumDB();
+
+        album.ID = int.Parse(myReader["Id"].ToString());
+        album.Name = myReader["name"].ToString();
+        album.User = int.Parse(myReader["user"].ToString());
+
+        return album;
+    }
+    
+    String getPhotoFromAlbum(int albumId)
+    {
+        String ext = "";
+        String photo = "";
+
+        List<Models.PhotoDB> photosList = new List<Models.PhotoDB>();
+
+        try
+        {
+            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+            con.Open();
+            string strQuery = "select * from [dbo].[photos] where [album]=@id";
+            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+            cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = albumId;
+            System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+            if (myReader.Read())
+            {
+                ext = myReader["photoType"].ToString();
+                //considering "photo's" bytes are on 2nd column
+                byte[] photoBytes = (byte[])myReader.GetValue(2);
+
+                string base64String = Convert.ToBase64String(photoBytes, 0, photoBytes.Length);
+                photo = base64String;
+            }
+
+            myReader.Close();
+            con.Close();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
+        if (ext != "" && photo != "")
+        {
+            return "data:image/" + ext + ";base64," + photo;
+        }
+        else
+        {
+            return "~/Assets/empty_image.jpg";
+        }
+    }
+
+    void AddNewAlbumButton_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("~/Album.aspx?albumId=" + createNewAlbum().ToString());
     }
     
 </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-* {
-    box-sizing: border-box;
-}
-.row:after {
-    content: "";
-    clear: both;
-    display: block;
-}
-[class*="col-"] {
-    float: left;
-    padding: 15px;
-}
-.col-1 {width: 8.33%;}
-.col-2 {width: 16.66%;}
-.col-3 {width: 25%;}
-.col-4 {width: 33.33%;}
-.col-5 {width: 41.66%;}
-.col-6 {width: 50%;}
-.col-7 {width: 58.33%;}
-.col-8 {width: 66.66%;}
-.col-9 {width: 75%;}
-.col-10 {width: 83.33%;}
-.col-11 {width: 91.66%;}
-.col-12 {width: 100%;}
-html {
-    font-family: "Lucida Sans", sans-serif;
-}
-.header {
-    background-color: #9933cc;
-    color: #ffffff;
-    padding: 15px;
-}
-.menu ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-.menu li {
-    padding: 8px;
-    margin-bottom: 7px;
-    background-color :#33b5e5;
-    color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-}
-.menu li:hover {
-    background-color: #0099cc;
-}
-</style>
-<head runat="server">
-    <title></title>
-</head>
 <body>
     <form id="form1" runat="server">
-    <div>
     
-    <asp:Button ID="btnNewAlbum" runat="server" Text="New Album" OnClick="btnNewAlbum_Click" />
-    </div>
-    </form>
+                    <div style="background-color: #cceeff; clear: left; width: auto; padding: 5px; margin:10px; display:inline-block">
+                        <asp:Image ID="Img1" runat="server" ImageUrl="~/Assets/empty_image.jpg" Width="400" Height="300"/>
+                        <asp:Button ID="AddNewAlbumButton" OnClick="AddNewAlbumButton_Click" runat="server" Text="New Album" style="float:right; margin-top:30%; margin-left:20px; margin-right:20px"/>
+                    </div>
+        </form>
+    
+    
+        <asp:XmlDataSource ID="XDSAlbums" runat="server" XPath="Albums/Album"></asp:XmlDataSource>
 
-    <div class="row">
-        <div class="col-3">col1</div>
-        <div class="col-3">col2</div>
-        <div class="col-3">col3</div>
-        <div class="col-3">col4</div>
-    </div>
+        <asp:Repeater ID="Repeater1" runat="server" DataSourceID="XDSAlbums">
+            <ItemTemplate>
+                    <div style="background-color: #cceeff; clear: left; width: auto; padding: 5px; margin:10px; display:inline-block" DataSource='<%# XPathSelect("Album") %>'>
+                        <!--<img runat="server" id="MovieImg" width="120" height="190" src='<%# "~/Images/" + XPath("@ID") + ".jpg" %>' />-->
+                        <asp:Image ID="Img1" runat="server" ImageUrl='<%# XPath("@photo") %>' Width="400" Height="300"/>
+                        <asp:HyperLink ID="HyperLink1" NavigateUrl='<%# "~/Album.aspx?albumId=" + XPath("@Id") %>' runat="server" style="float:right; margin-top:30%; margin-left:20px; margin-right:20px">'<%# XPath("@name") %>'</asp:HyperLink>
+                    </div>
+            </ItemTemplate>
+            <SeparatorTemplate>
+                <br />
+            </SeparatorTemplate>
+        </asp:Repeater>
 </body>
 </html>
+
+</asp:Content>
