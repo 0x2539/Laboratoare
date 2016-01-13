@@ -228,12 +228,12 @@
                         <img id="someImg" runat="server" datasource='<%# XPathSelect("Photo") %>' src='<%# "data:image/" + XPath("@photoType") + ";base64," + XPath("@photo") %>' />
                     </a>
                 </div>
+                
+                <a href='<%# "/Search.aspx?search=" + XPath("@category") %>'>
+                    <div id='category'><%#XPath("@category")%></div>
+                </a>
 
-                <div>
-                    <div style="float: left;">Category: <%#XPath("@category")%></div>
-                </div>
-
-                <div style="float: left; clear: left; text-align: left">Description:  <%# XPath("@description") %></div>
+                <div id='description'><%# XPath("@description") %></div>
 
             </div>
 

@@ -136,3 +136,13 @@ body {
         outline: none;
         background: #ffffff;
     }
+
+#description {
+    clear: left; 
+    text-align: left;
+}
+#category {
+    float: left;
+    color:royalblue;
+    font-weight:700;
+}

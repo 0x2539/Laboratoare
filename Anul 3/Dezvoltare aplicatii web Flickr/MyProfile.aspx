@@ -260,7 +260,7 @@
                     </div>
 
                     <div>
-                        <div style="float: left;">Name: <%# XPath("@name") %></div>
+                        <div id='description'>Name: <%# XPath("@name") %></div>
                     </div>
                 </div>
             </ItemTemplate>
