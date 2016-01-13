@@ -35,6 +35,8 @@ body {
 
 .frame > img { width: 100%; }
 
+.frame > a > img { width: 100%; }
+
 #controls { margin-bottom: 40px; }
 
 #controls button {
