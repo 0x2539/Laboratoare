@@ -55,7 +55,7 @@ body {
     }
 
         #controls button:hover {
-            color: #333;
+            color: #ff8500;
         }
 
 #data {
@@ -148,6 +148,13 @@ body {
     font-weight: 700;
 }
 
+#user {
+    float: left;
+    color: royalblue;
+    font-weight: 700;
+    margin:10px;
+}
+
 
 .navbar {
     display:block;
@@ -160,6 +167,7 @@ body {
     top: 0;
     width: 100%;
     height: 50px;
+    z-index:3;
 }
 
 .navbarUl {
@@ -192,7 +200,7 @@ body {
     }
 
         .navbarButtonLi a:hover:not(.active) {
-            background-color: #111;
+            background-color: #ff8500;
         }
 
 .navbarButton {
@@ -200,7 +208,7 @@ body {
 }
 
     .navbarButton a:hover:not(.active) {
-        background-color: #111;
+        background-color: #ff8500;
     }
 
 .active {
@@ -214,4 +222,48 @@ body {
 
 .page {
     margin:100px
+}
+
+.tip {
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  background: transparent;
+  border: 10px solid #ccc;
+}
+
+.tip-up {
+  top: -25px; /* Same as body margin top + border */
+  left: 10px;
+  border-right-color: transparent;
+  border-left-color: transparent;
+  border-top-color: transparent;
+}
+
+.dialogbox {
+    clear:both;
+}
+
+.dialogbox .body {
+  position: relative;
+  width:100%;
+  height: auto;
+  padding: 5px;
+  background-color: #DADADA;
+  border-radius: 3px;
+  border: 5px solid #ccc;
+  float:left;
+  text-align:left;
+}
+
+.body .message {
+  min-height: 30px;
+  border-radius: 3px;
+  font-family: Arial;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #797979;
+  float:left;
+    width: 100%;
+    word-wrap:break-word;
 }

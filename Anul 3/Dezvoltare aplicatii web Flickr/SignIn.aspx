@@ -1,195 +1,138 @@
-﻿<%@ Page Language="C#" %>
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPageMaster.master" AutoEventWireup="true" CodeFile="SignIn.aspx.cs" Inherits="SignIn" %>
+
 <%@ Import Namespace="System.Web.Security" %>
 
-<script runat="server">
-    void Page_Load(object sender, EventArgs e)
-    {
-        if (Context.User.Identity.IsAuthenticated)
-        {
-            Response.Redirect("Default.aspx");
-        }
-    }
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
-    void Logon_Click(object sender, EventArgs e)
-    {
-        SubmitRegister.Enabled = false;
-        SubmitLogin.Enabled = false;
-        try
+    <script runat="server">
+    
+        String user;
+        String pass;
+
+        void Page_Load(object sender, EventArgs e)
         {
-            if (login())
+            if (Context.User.Identity.IsAuthenticated)
+            {
+                Response.Redirect("Default.aspx");
+            }
+            user = Request.QueryString["user"];
+            pass = Request.QueryString["pass"];
+            if (user != null && pass != null && user.Length > 0 && pass.Length > 0)
             {
 
-                //  }
-                //if ((UserEmail.Text == "jchen@contoso.com") && 
-                //        (UserPass.Text == "37Yj*99Ps"))
-                //  {
-                FormsAuthentication.RedirectFromLoginPage(UserEmail.Text, Persist.Checked);
-                Response.Redirect("Default.aspx");
-                //Msg.Text = "Valid credentials.";
+                if (login())
+                {
+
+                    //  }
+                    //if ((UserEmail.Text == "jchen@contoso.com") && 
+                    //        (UserPass.Text == "37Yj*99Ps"))
+                    //  {
+                    FormsAuthentication.RedirectFromLoginPage(user, true);
+                    Response.Redirect("Default.aspx");
+                    //Msg.Text = "Valid credentials.";
+                }
+                else
+                {
+                    message.InnerText = "Wrong credentials!";
+                }
             }
             else
+                if (user != null || pass != null)
+                {
+                    message.InnerText = "Fill in the credentials!";
+                }
+        }
+
+        void Logon_Click(object sender, EventArgs e)
+        {
+            try
             {
-                Msg.Text = "Invalid credentials. Please try again.";
+                if (login())
+                {
+
+                    //  }
+                    //if ((UserEmail.Text == "jchen@contoso.com") && 
+                    //        (UserPass.Text == "37Yj*99Ps"))
+                    //  {
+                    FormsAuthentication.RedirectFromLoginPage(user, true);
+                    Response.Redirect("Default.aspx");
+                    //Msg.Text = "Valid credentials.";
+                }
+                else
+                {
+                    //Msg.Text = "Invalid credentials. Please try again.";
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
             }
         }
-        catch (Exception ex)
+
+        Boolean login()
         {
-            System.Diagnostics.Debug.WriteLine(ex.ToString());
+            try
+            {
+                //System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;User Instance=True;");
+                System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+                //String strConnString = System.Configuration.ConfigurationManager.ConnectionStrings["PhotoDBContext"].ConnectionString;
+                //System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(strConnString);
+                con.Open();
+                //insert the file into database
+                string strQuery = "select [username] from [dbo].[users] where username=@username and password=@password";
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.VarChar).Value = user;
+                cmd.Parameters.AddWithValue("@password", System.Data.SqlDbType.VarChar).Value = pass;
+                System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+                if (myReader.Read())
+                {
+                    // Assuming your desired value is the name as the 3rd field
+                    myReader.Close();
+                    con.Close();
+                    return true;
+                }
+
+                myReader.Close();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+            return false;
         }
-        SubmitRegister.Enabled = true;
-        SubmitLogin.Enabled = true;
-    }
 
-  void Register_Click(object sender, EventArgs e)
-  {
-      SubmitRegister.Enabled = false;
-      SubmitLogin.Enabled = false;
-      try
-      {
-          if (!userExists())
-          {
-              System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
-              con.Open();
-              //insert the file into database
-              string strQuery = "insert into [dbo].[users]([username], [password]) values (@username, @password)";
-              System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
-              cmd.Parameters.Add("@username", System.Data.SqlDbType.VarChar).Value = UserEmail.Text;
-              cmd.Parameters.Add("@password", System.Data.SqlDbType.VarChar).Value = UserPass.Text;
-              cmd.ExecuteNonQuery();
-              con.Close();
+    </script>
 
-              FormsAuthentication.RedirectFromLoginPage(UserEmail.Text, Persist.Checked);
-              Response.Redirect("Default.aspx");
-          }
-          else
-          {
-              Msg.Text = "User already exists.";
-          }
-      }
-      catch (Exception ex)
-      {
-          System.Diagnostics.Debug.WriteLine(ex.ToString());
-      }
-      SubmitRegister.Enabled = true;
-      SubmitLogin.Enabled = true;
-  }
+    <link rel='stylesheet prefetch' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='login.css' media='all' rel='stylesheet'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, target-densitydpi=device-dpi'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-  Boolean login()
-  {
-      try
-      {
-          //System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;User Instance=True;");
-          System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
-          //String strConnString = System.Configuration.ConfigurationManager.ConnectionStrings["PhotoDBContext"].ConnectionString;
-          //System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(strConnString);
-          con.Open();
-          //insert the file into database
-          string strQuery = "select [username] from [dbo].[users] where username=@username and password=@password";
-          System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
-          cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.VarChar).Value = UserEmail.Text;
-          cmd.Parameters.AddWithValue("@password", System.Data.SqlDbType.VarChar).Value = UserPass.Text;
-          System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+    <div class="login-card">
+        <h1>Log-in</h1>
+        <div style="text-align: center; width: 100%" runat="server" id="message"></div>
+        <br>
+        <form>
+            <input type="text" name="user" placeholder="Username" runat="server" id="username">
+            <input type="password" name="pass" placeholder="Password" id="password" runat="server">
+            <input type="submit" name="login" class="login login-submit" value="login">
+        </form>
 
-          if (myReader.Read())
-          {
-              // Assuming your desired value is the name as the 3rd field
-              myReader.Close();
-              con.Close();
-              return true;
-          }
+        <div class="login-help">
+            <a href="/Register.aspx">Register</a> • <a href="#">Forgot Password</a>
+        </div>
+    </div>
 
-          myReader.Close();
-          con.Close();
-      }
-      catch (Exception ex)
-      {
-          System.Diagnostics.Debug.WriteLine(ex.ToString());
-      }
-      return false;
-  }
+    <!-- <div id="error"><img src="https://dl.dropboxusercontent.com/u/23299152/Delete-icon.png" /> Your caps-lock is on.</div> -->
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
 
-  Boolean userExists()
-  {
-      try
-      {
-          //System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;User Instance=True;");
-          System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
-          //String strConnString = System.Configuration.ConfigurationManager.ConnectionStrings["PhotoDBContext"].ConnectionString;
-          //System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(strConnString);
-          con.Open();
-          //insert the file into database
-          string strQuery = "select [username] from [dbo].[users] where username=@username";
-          System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
-          cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.VarChar).Value = UserEmail.Text;
-          System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
 
-          if (myReader.Read())
-          {
-              // Assuming your desired value is the name as the 3rd field
-              myReader.Close();
-              con.Close();
-              return true;
-          }
 
-          myReader.Close();
-          con.Close();
-      }
-      catch (Exception ex)
-      {
-          System.Diagnostics.Debug.WriteLine(ex.ToString());
-      }
-      return false;
-  }
-</script>
-<html>
-<head id="Head1" runat="server">
-  <title>Forms Authentication - Login</title>
-</head>
-<body>
-  <form id="form1" runat="server">
-    <h3>
-      Logon Page</h3>
-    <table>
-      <tr>
-        <td>
-          E-mail address:</td>
-        <td>
-          <asp:TextBox ID="UserEmail" runat="server" /></td>
-        <td>
-          <asp:RequiredFieldValidator ID="RequiredFieldValidator1" 
-            ControlToValidate="UserEmail"
-            Display="Dynamic" 
-            ErrorMessage="Cannot be empty." 
-            runat="server" />
-        </td>
-      </tr>
-      <tr>
-        <td>
-          Password:</td>
-        <td>
-          <asp:TextBox ID="UserPass" TextMode="Password" 
-             runat="server" />
-        </td>
-        <td>
-          <asp:RequiredFieldValidator ID="RequiredFieldValidator2" 
-            ControlToValidate="UserPass"
-            ErrorMessage="Cannot be empty." 
-            runat="server" />
-        </td>
-      </tr>
-      <tr>
-        <td>
-          Remember me?</td>
-        <td>
-          <asp:CheckBox ID="Persist" runat="server" /></td>
-      </tr>
-    </table>
-    <asp:Button ID="SubmitLogin" OnClick="Logon_Click" Text="Log On" runat="server" />
-    <asp:Button ID="SubmitRegister" OnClick="Register_Click" Text="Register" 
-       runat="server" />
-    <p>
-      <asp:Label ID="Msg" ForeColor="red" runat="server" />
-    </p>
-  </form>
-</body>
-</html>
+    <span class="resp-info"></span>
+
+
+</asp:Content>
