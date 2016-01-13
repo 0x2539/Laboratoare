@@ -8,6 +8,7 @@
     
         String user;
         String pass;
+        String mod;
 
         void Page_Load(object sender, EventArgs e)
         {
@@ -17,6 +18,7 @@
             }
             user = Request.QueryString["user"];
             pass = Request.QueryString["pass"];
+            mod = Request.QueryString["moderator"];
             
             if (user != null && pass != null && user.Length > 0 && pass.Length > 0)
             {
@@ -38,10 +40,11 @@
                     System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
                     con.Open();
                     //insert the file into database
-                    string strQuery = "insert into [dbo].[users]([username], [password]) values (@username, @password)";
+                    string strQuery = "insert into [dbo].[users]([username], [password], [moderator]) values (@username, @password, @moderator)";
                     System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
                     cmd.Parameters.Add("@username", System.Data.SqlDbType.VarChar).Value = user;
                     cmd.Parameters.Add("@password", System.Data.SqlDbType.VarChar).Value = pass;
+                    cmd.Parameters.Add("@moderator", System.Data.SqlDbType.VarChar).Value = mod;
                     cmd.ExecuteNonQuery();
                     con.Close();
 
@@ -108,6 +111,7 @@
         <form>
             <input type="text" name="user" placeholder="Username">
             <input type="password" name="pass" placeholder="Password">
+            <input type="text" name="moderator" placeholder="Moderator">
             <input type="submit" name="register" class="login login-submit" value="register">
         </form>
 

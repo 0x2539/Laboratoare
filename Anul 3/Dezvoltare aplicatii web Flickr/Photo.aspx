@@ -9,6 +9,7 @@
         int userId;
         int ownerId;
         int albumId;
+        Boolean moderator;
 
         void Page_Load(object sender, EventArgs e)
         {
@@ -63,7 +64,7 @@
                 {
                     System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
                     con.Open();
-                    string strQuery = "select [Id] from [dbo].[users] where [username]=@username";
+                    string strQuery = "select [Id], [moderator] from [dbo].[users] where [username]=@username";
                     System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
                     cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.Int).Value = Context.User.Identity.GetUserName();
                     System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
@@ -73,6 +74,14 @@
                         // Assuming your desired value is the name as the 3rd field
                         int id = -1;
                         int.TryParse(myReader["Id"].ToString(), out id);
+                        if(myReader["moderator"].ToString().Length > 0)
+                        {
+                            moderator = true;
+                        }
+                        else
+                        {
+                            moderator = false;
+                        }
                         myReader.Close();
                         con.Close();
                         return id;
@@ -339,12 +348,17 @@
 
         bool canDeleteComment(String commenterId)
         {
-            int id = int.Parse(commenterId);
+            if (moderator)
+            {
+                return true;
+            }
             //if the current user is the owner of the photo
             if (userId == ownerId)
             {
                 return true;
             }
+
+            int id = int.Parse(commenterId);
             //if the current user wrote the comment
             if (userId == id)
             {
@@ -355,6 +369,10 @@
 
         bool canDeletePhoto()
         {
+            if (moderator)
+            {
+                return true;
+            }
             //if the current user is the owner of the photo
             if (userId == ownerId && isPhotoValid())
             {
