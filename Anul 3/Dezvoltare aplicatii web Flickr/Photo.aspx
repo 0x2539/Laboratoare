@@ -44,12 +44,15 @@
             //cstext1.Append("<script type='text/javascript' > alert('ceva2'); </");
             cstext1.Append("<script type=text/javascript > $(document).ready(function() { document.getElementById('uploadedImage').src = '" + imageData + "';}); </");
             cstext1.Append("script>");
-            Page.ClientScript.RegisterStartupScript(typeof(Page), "some", cstext1.ToString());
+            //Page.ClientScript.RegisterStartupScript(typeof(Page), "some", cstext1.ToString());
+            uploadedImage.Src = imageData;
             System.Diagnostics.Debug.WriteLine("sent empty image");
         }
         btnAddComment.DataBind();
         btnDeletePhoto.DataBind();
         commentTextArea.DataBind();
+        btnSave.DataBind();
+        controls.DataBind();
     }
 
     int getUserId()
@@ -86,50 +89,67 @@
         return -1;
     }
 
+    Boolean checkedPhoto;
+    Boolean photoValid;
+    
     Boolean isPhotoValid()
     {
-        if (currentId > 0)
+        if (!checkedPhoto)
         {
-            try
+            checkedPhoto = true;
+            photoValid = false;
+            if (currentId > 0)
             {
-                System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
-                con.Open();
-                string strQuery = "select * from [dbo].[photos] where [Id]=@id";
-                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
-                cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = currentId;
-                System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
-
-                if (myReader.Read())
+                try
                 {
-                    // Assuming your desired value is the name as the 3rd field
-                    Models.PhotoDB photo = readerToPhotoDB(myReader);
-                    //uploadedImage.Attributes["src"] = "data:image/" + photo.PhotoType + ";base64," + photo.Photo;
-                    String imageData = "data:image/" + photo.PhotoType + ";base64," + photo.Photo;
-                    StringBuilder cstext1 = new StringBuilder();
-                    //cstext1.Append("<script type='text/javascript' > alert('ceva2'); </");
-                    cstext1.Append("<script type=text/javascript > $(document).ready(function() { document.getElementById('uploadedImage').src = '" + imageData + "';}); </");
-                    cstext1.Append("script>");
-                    Page.ClientScript.RegisterStartupScript(typeof(Page), "some", cstext1.ToString());
-                    System.Diagnostics.Debug.WriteLine("sent some image");
-                    ownerId = photo.User;
-                    albumId = photo.Album;
-                    
+                    System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+                    con.Open();
+                    string strQuery = "select * from [dbo].[photos] where [Id]=@id";
+                    System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                    cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = currentId;
+                    System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+                    if (myReader.Read())
+                    {
+                        // Assuming your desired value is the name as the 3rd field
+                        Models.PhotoDB photo = readerToPhotoDB(myReader);
+                        //uploadedImage.Attributes["src"] = "data:image/" + photo.PhotoType + ";base64," + photo.Photo;
+                        String imageData = "data:image/" + photo.PhotoType + ";base64," + photo.Photo;
+                        StringBuilder cstext1 = new StringBuilder();
+                        //cstext1.Append("<script type='text/javascript' > alert('ceva2'); </");
+                        cstext1.Append("<script type=text/javascript > $(document).ready(function() { document.getElementById('uploadedImage').src = '" + imageData + "';}); </");
+                        cstext1.Append("script>");
+                        //Page.ClientScript.RegisterStartupScript(typeof(Page), "some", cstext1.ToString());
+                        uploadedImage.Src = imageData;
+
+                        //System.Diagnostics.Debug.WriteLine("sent some image");
+                        ownerId = photo.User;
+                        albumId = photo.Album;
+
+                        myReader.Close();
+                        con.Close();
+                        photoValid = true;
+                        return true;
+                    }
+
                     myReader.Close();
                     con.Close();
-                    return true;
                 }
-
-                myReader.Close();
-                con.Close();
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.ToString());
-            }
+        }
+        else
+        {
+            return photoValid;
         }
         return false;
     }
 
+    byte[] Photo;
+    
     private Models.PhotoDB readerToPhotoDB(System.Data.SqlClient.SqlDataReader myReader)
     {
         Models.PhotoDB newPhoto = new Models.PhotoDB();
@@ -142,7 +162,7 @@
         newPhoto.Album = int.Parse(myReader["album"].ToString());
 
         //considering "photo's" bytes are on 2nd column
-        byte[] Photo = (byte[])myReader.GetValue(2);
+        Photo = (byte[])myReader.GetValue(2);
 
         string base64String = Convert.ToBase64String(Photo, 0, Photo.Length);
         newPhoto.Photo = base64String;
@@ -152,20 +172,14 @@
     
     void loadComments()
     {
-        System.Diagnostics.Debug.WriteLine("getting list");
         List<Models.CommentDB> list = getComments();
-        System.Diagnostics.Debug.WriteLine("got list");
 
         System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
         doc.LoadXml("<Comments></Comments>");
         System.Xml.XmlNode rootNode = doc.SelectSingleNode("Comments");
 
-        System.Diagnostics.Debug.WriteLine("list size: " + list.Count);
         foreach (Models.CommentDB comment in list)
         {
-
-            System.Diagnostics.Debug.WriteLine("list item: " + comment.ID);
-
             System.Xml.XmlAttribute xmlId = doc.CreateAttribute("Id");
             xmlId.Value = comment.ID.ToString();
 
@@ -187,7 +201,6 @@
             rootNode.AppendChild(xmlNode);
         }
 
-        System.Diagnostics.Debug.WriteLine("file: " + doc.InnerXml);
 
         //System.Xml.XmlDocument xDoc = new System.Xml.XmlDocument();
         //xDoc.LoadXml(xml.Value);
@@ -216,7 +229,6 @@
             while (myReader.Read())
             {
                 commentsList.Add(readerToCommentDB(myReader));
-                System.Diagnostics.Debug.WriteLine("getting item " + readerToCommentDB(myReader).ID);
             }
 
             myReader.Close();
@@ -359,16 +371,57 @@
         }
         return false;
     }
-    
-    String meth()
-    {
-        return "ceva";
-    }
 
-    public static String SetName(string name)
+
+    void btnSavePhoto_Click(object sender, EventArgs e)
     {
-        return "Your String";
+
+        System.IO.MemoryStream ms = new System.IO.MemoryStream(Photo);
+        System.Drawing.Image orgImg = System.Drawing.Image.FromStream(ms);
+        float scaleCrop = float.Parse(hiddenScale.Value.ToString());
+        int width = (int)((float)(scaleCrop * 400.0f));
+        int height = (int)((float)(scaleCrop * 300.0f));
+        
+        System.Diagnostics.Debug.WriteLine(hiddenX.Value.ToString() + " " + hiddenY.Value.ToString() + " " + width + " " + height);
+        
+        System.Drawing.Rectangle areaToCrop = new System.Drawing.Rectangle(
+                Convert.ToInt32(hiddenX.Value.ToString()),
+                Convert.ToInt32(hiddenY.Value.ToString()),
+                Convert.ToInt32(width),
+                Convert.ToInt32(height));
+        
+        System.Drawing.Bitmap bitMap = new System.Drawing.Bitmap(areaToCrop.Width, areaToCrop.Height);
+        //Create graphics object for alteration
+        using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(bitMap))
+        {
+            //Draw image to screen
+            g.DrawImage(orgImg, new System.Drawing.Rectangle(0, 0, bitMap.Width, bitMap.Height), areaToCrop, System.Drawing.GraphicsUnit.Pixel);
+        }
+        System.IO.MemoryStream ms2 = new System.IO.MemoryStream();
+        bitMap.Save(ms2, orgImg.RawFormat);// System.Drawing.Imaging.ImageFormat.Jpeg);
+        orgImg.Dispose();
+
+        System.Diagnostics.Debug.WriteLine("save data: " + Convert.ToBase64String(ms2.ToArray(), 0, ms2.ToArray().Length));
+        
+        Photo = ms2.ToArray();
+        try
+        {
+            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+            con.Open();
+            string strQuery = "update [dbo].[photos] set[photo]=@photo where [Id]=@id";
+            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+            cmd.Parameters.Add("@photo", System.Data.SqlDbType.Binary).Value = Photo;
+            cmd.Parameters.Add("@id", System.Data.SqlDbType.Int).Value = currentId;
+            cmd.ExecuteNonQuery();
+            con.Close();
+            Response.Redirect("~/Album?albumId=" + albumId);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
     }
+    
     
 </script>
 
@@ -381,11 +434,11 @@
 
     <div id='content'>
     <div class='frame'>
-      <img id='uploadedImage' src='http://lorempixel.com/640/480/city' />
+      <img id='uploadedImage' src='http://lorempixel.com/640/480/city' runat="server"/>
             <!--<asp:Image ID="uploadedImage3" runat="server" ImageUrl="~/Assets/empty_image.jpg"/>-->
     </div>
 
-    <div id='controls'>
+    <div id='controls' runat="server" style='<%# canDeletePhoto() && canAddComment() ? "" : "display:none"%>'>
       <button id='rotate_left'  type='button' title='Rotate left'> &lt; </button>
       <button id='zoom_out'     type='button' title='Zoom out'> - </button>
       <button id='fit'          type='button' title='Fit image'> [ ]  </button>
@@ -393,29 +446,30 @@
       <button id='rotate_right' type='button' title='Rotate right'> &gt; </button>
     </div>
         
-        <div>
-      <button id='saveButton' type='button'>Save</button>
-            </div>
-
     <ul id='data'>
       <div class='column'>
-        <li>x: <span id='x'></span></li>
-        <li>y: <span id='y'></span></li>
+        <li>x: <span runat="server" id='x'></span></li>
+        <li>y: <span runat="server" id='y'></span></li>
       </div>
       <div class='column'>
         <li>width:  <span id='w'></span></li>
         <li>height: <span id='h'></span></li>
       </div>
       <div class='column'>
-        <li>scale: <span id='scale'></span></li>
-        <li>angle: <span id='angle'></span></li>
+        <li>scale: <span runat="server" id='scale'></span></li>
+        <li>angle: <span runat="server" id='angle'></span></li>
       </div>
     </ul>
 
         <form id="form1" runat="server">
+            <asp:HiddenField ID="hiddenX" Value="0" runat="server" />
+            <asp:HiddenField ID="hiddenY" Value="0" runat="server" />
+            <asp:HiddenField ID="hiddenScale" Value="0" runat="server" />
+            <asp:HiddenField ID="hiddenAngle" Value="0" runat="server" />
             <textarea id="commentTextArea" runat="server" Visible='<%# canAddComment() %>' name="message" rows="5" cols="70" ></textarea> <br/>
             <asp:Button ID="btnAddComment" runat="server" Visible='<%# canAddComment() %>' Text="Add Comment" style="margin:20px" OnClick="btnAddComment_Click" />
             <asp:Button ID="btnDeletePhoto" runat="server" Visible='<%# canDeletePhoto() && canAddComment() %>' Text="Delete Photo" style="margin:20px" OnClick="btnDeletePhoto_Click" />
+            <asp:Button ID="btnSave" runat="server" Visible='<%# canDeletePhoto() && canAddComment() %>' Text="Save Photo" style="margin:20px" OnClick="btnSavePhoto_Click" />
     </form>
         <div>
         <asp:XmlDataSource ID="XDSComment" runat="server" XPath="Comments/Comment" EnableCaching="false"></asp:XmlDataSource>
@@ -437,9 +491,10 @@
 
   <script src='http://code.jquery.com/jquery-1.11.0.min.js'></script>
   <script src='../js/jquery.guillotine.js'></script>
+    <script src='https://github.com/douglascrockford/JSON-js/blob/master/json2.js' ></script>
   <script type='text/javascript'>
       jQuery(function () {
-          var picture = $('#uploadedImage');
+          var picture = $('#<%=uploadedImage.ClientID%>');//$('#uploadedImage');
 
           // Make sure the image is completely loaded before calling the plugin
           picture.one('load', function () {
@@ -448,7 +503,30 @@
 
               // Display inital data
               var data = picture.guillotine('getData');
-              for (var key in data) { $('#' + key).html(data[key]); }
+              for (var key in data) {
+                  if (key == "x") {
+                      $('#' + '<%=x.ClientID%>').html(data[key]);
+                          $('#' + '<%=hiddenX.ClientID%>').val(data[key]);
+                      }
+                      else
+                          if (key == 'y') {
+                              $('#' + '<%=y.ClientID%>').html(data[key]);
+                              $('#' + '<%=hiddenY.ClientID%>').val(data[key]);
+                          }
+                          else
+                              if (key == 'scale') {
+                                  $('#' + '<%=scale.ClientID%>').html(data[key]);
+                                  $('#' + '<%=hiddenScale.ClientID%>').val(data[key]);
+                              }
+                              else
+                                  if (key == 'angle') {
+                                      $('#' + '<%=angle.ClientID%>').html(data[key]);
+                                      $('#' + '<%=hiddenAngle.ClientID%>').val(data[key]);
+                                  }
+                                  else {
+                                      $('#' + key).html(data[key]);
+                                  }
+              }
 
               // Bind button actions
               $('#rotate_left').click(function () { picture.guillotine('rotateLeft'); });
@@ -457,11 +535,41 @@
               $('#zoom_in').click(function () { picture.guillotine('zoomIn'); });
               $('#zoom_out').click(function () { picture.guillotine('zoomOut'); });
 
+              $('#' + '<%=hiddenScale.ClientID%>').value = 'ceva';
+              //document.getElementById("hiddenScale").value = 'ceva2';
+
               // Update data on change
               picture.on('guillotinechange', function (ev, data, action) {
                   data.scale = parseFloat(data.scale.toFixed(4));
-                  for (var k in data) { $('#' + k).html(data[k]); }
+
+                  console.log(JSON.stringify(data));
+                  for (var key in data) {
+                      //console.log(key + data[key]);
+                      if (key === "x") {
+                          $('#' + '<%=x.ClientID%>').html(data[key]);
+                          $('#' + '<%=hiddenX.ClientID%>').val(data[key]);
+                      }
+                      else
+                          if (key == 'y') {
+                              $('#' + '<%=y.ClientID%>').html(data[key]);
+                              $('#' + '<%=hiddenY.ClientID%>').val(data[key]);
+                          }
+                          else
+                              if (key == 'scale') {
+                                  $('#' + '<%=scale.ClientID%>').html(data[key]);
+                                  $('#' + '<%=hiddenScale.ClientID%>').val(data[key]);
+                              }
+                              else
+                                  if (key == 'angle') {
+                                      $('#' + '<%=angle.ClientID%>').html(data[key]);
+                                      $('#' + '<%=hiddenAngle.ClientID%>').val(data[key]);
+                                  }
+                                  else {
+                                      $('#' + key).html(data[key]);
+                                  }
+                  }
               });
+
           });
 
           // Make sure the 'load' event is triggered at least once (for cached images)
