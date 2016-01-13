@@ -5,9 +5,11 @@
     <script runat="server">
 
         int userId;
+        String selectedCategory;
 
         void Page_Load(object sender, EventArgs e)
         {
+            selectedCategory = Request.QueryString["category"];
             if (Context.User.Identity.IsAuthenticated)
             {
                 userId = getUserId();
@@ -16,7 +18,17 @@
             {
             }
 
+            if (selectedCategory == null || selectedCategory.Length == 0)
+            {
+                categoryAll.Attributes["class"] = "active";
+            }
+            else
+            {
+                categoryAll.Attributes["class"] = "";
+            }
+
             loadPhotos();
+            loadCategories();
         }
 
         int getUserId()
@@ -56,11 +68,7 @@
 
         private void loadPhotos()
         {
-            System.Diagnostics.Debug.WriteLine("getting list");
             List<Models.PhotoDB> list = getPhotos();
-            System.Diagnostics.Debug.WriteLine("got list");
-
-            XElement xml = new XElement("Photos");
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml("<Photos></Photos>");
@@ -69,9 +77,6 @@
             System.Diagnostics.Debug.WriteLine("list size: " + list.Count);
             foreach (Models.PhotoDB photo in list)
             {
-
-                System.Diagnostics.Debug.WriteLine("list item: " + photo.ID);
-
                 System.Xml.XmlAttribute xmlPhotoId = doc.CreateAttribute("Id");
                 xmlPhotoId.Value = photo.ID.ToString();
 
@@ -103,10 +108,6 @@
                 rootNode.AppendChild(xmlNode);
             }
 
-            System.Diagnostics.Debug.WriteLine(xml.ToString());
-            System.Diagnostics.Debug.WriteLine(xml.Value);
-            System.Diagnostics.Debug.WriteLine("file: " + doc.InnerXml);
-
             //System.Xml.XmlDocument xDoc = new System.Xml.XmlDocument();
             //xDoc.LoadXml(xml.Value);
 
@@ -126,8 +127,19 @@
             {
                 System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
                 con.Open();
-                string strQuery = "select * from [dbo].[photos] order by [Id] Desc";
-                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                string strQuery;
+                System.Data.SqlClient.SqlCommand cmd;
+                if (selectedCategory != null && selectedCategory.Length > 0)
+                {
+                    strQuery = "select * from [dbo].[photos] where [category]=@category order by [Id] Desc";
+                    cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                    cmd.Parameters.Add("@category", System.Data.SqlDbType.VarChar).Value = selectedCategory;
+                }
+                else
+                {
+                    strQuery = "select * from [dbo].[photos] order by [Id] Desc";
+                    cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                }
                 System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
 
                 while (myReader.Read())
@@ -163,6 +175,76 @@
             return newPhoto;
         }
 
+
+        private void loadCategories()
+        {
+            List<String> list = getCategories();
+
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml("<Categories></Categories>");
+            System.Xml.XmlNode rootNode = doc.SelectSingleNode("Categories");
+
+            foreach (String category in list)
+            {
+                System.Xml.XmlAttribute xmlCategory = doc.CreateAttribute("category");
+                xmlCategory.Value = category;
+
+                System.Xml.XmlAttribute xmlSelected = doc.CreateAttribute("selected");
+                if (category.Equals(selectedCategory))
+                {
+                    xmlSelected.Value = "active";
+                }
+                else
+                {
+                    xmlSelected.Value = "";
+                }
+
+                System.Xml.XmlNode xmlNode = doc.CreateNode(System.Xml.XmlNodeType.Element, "Category", "");
+                xmlNode.Attributes.Append(xmlCategory);
+                xmlNode.Attributes.Append(xmlSelected);
+                rootNode.AppendChild(xmlNode);
+            }
+
+            doc.Save(Server.MapPath("~/App_Data/tempCategories.xml"));
+            //XDSPhoto.Data = doc.InnerXml;
+            XDSCategories.DataFile = Server.MapPath("~/App_Data/tempCategories.xml");
+            XDSCategories.DataBind();
+            XDSCategories.Save();
+            //XDSMovie.Data
+        }
+
+        private List<String> getCategories()
+        {
+            List<String> photosList = new List<String>();
+
+            try
+            {
+                System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+                con.Open();
+                string strQuery = "select [category] from [dbo].[photos] group by [category]";
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+                while (myReader.Read())
+                {
+                    photosList.Add(readerToCategory(myReader));
+                }
+
+                myReader.Close();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+            return photosList;
+        }
+
+        private String readerToCategory(System.Data.SqlClient.SqlDataReader myReader)
+        {
+            return myReader["category"].ToString();
+        }
+
         void Profile_Click(object sender, EventArgs e)
         {
             Response.Redirect("MyProfile.aspx?userId=" + userId);
@@ -183,8 +265,24 @@
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='../css/jquery.guillotine.css' media='all' rel='stylesheet'>
     <link href="thumbnail.css" media='all' rel='stylesheet'>
+    <link href="verticalMenu.css" media='all' rel='stylesheet'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, target-densitydpi=device-dpi'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <ul class="verticalUl">
+
+        <li class="verticalLi"><a href="/Default.aspx" runat="server" id="categoryAll">All</a></li>
+        <asp:XmlDataSource ID="XDSCategories" runat="server" XPath="Categories/Category"></asp:XmlDataSource>
+
+        <asp:Repeater ID="Repeater2" runat="server" DataSourceID="XDSCategories">
+            <ItemTemplate>
+
+                <li class="verticalLi"><a class='<%#XPath("@selected")%>' href='<%# "/Default.aspx?category=" + XPath("@category") %>'><%# XPath("@category") %></a></li>
+
+            </ItemTemplate>
+        </asp:Repeater>
+
+    </ul>
 
     <asp:XmlDataSource ID="XDSPhoto" runat="server" XPath="Photos/Photo"></asp:XmlDataSource>
 
