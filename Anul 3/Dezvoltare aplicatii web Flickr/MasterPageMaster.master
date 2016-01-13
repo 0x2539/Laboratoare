@@ -10,7 +10,7 @@
 </head>
 <body>
 
-    <link href='demo.css' media='all' rel='stylesheet'>
+    <link href='navbar.css' media='all' rel='stylesheet'>
 
     <div class="navbar">
         <ul class="navbarUl">

@@ -1,0 +1,71 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPageProfile.master.cs" Inherits="MasterPageMaster" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+
+    <link href='navbar.css' media='all' rel='stylesheet'>
+
+    <div class="navbar">
+        <ul class="navbarUl">
+            <li class="navbarButtonLi"><a class="active" href="/Default.aspx">Home</a></li>
+            <li class="navbarButtonLi"><a href="/Album.aspx?newAlbum=newAlbum">New Album</a></li>
+        </ul>
+        
+        <ul class="navbarUlRight">
+            <li class="navbarButton" id="signOutButton" runat="server"><a href="/SignOut.aspx">Sign out</a></li>
+            <li class="navbarButton" id="profileButton" runat="server"><a class="active" href="/MyProfile.aspx">Profile</a></li>
+            <li class="navbarButton" id="signInButton" runat="server"><a class="active" href="/SignIn.aspx">Sign in</a></li>
+        </ul>
+
+        <div class="search">
+            <form action="/search" method="get" class="sfm">
+                <div class="box">
+                    <div class="container-1">
+                        <span class="icon"><i class="fa fa-search"></i></span>
+                        <input type="search" name="search" id="search" placeholder="Search..." />
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="page">
+        <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+        </asp:ContentPlaceHolder>
+    </div>
+    
+    <script runat="server">
+
+        void Page_Load(object sender, EventArgs e)
+        {
+            if (Context.User.Identity.IsAuthenticated)
+            {
+                profileButton.Visible = true;
+                signOutButton.Visible = true;
+                signInButton.Visible = false;
+            }
+            else
+            {
+                profileButton.Visible = false;
+                signOutButton.Visible = false;
+                signInButton.Visible = true;
+            }
+        }
+
+        void SignOut_Click(object sender, EventArgs e)
+        {
+            FormsAuthentication.SignOut();
+            Response.Redirect("Default.aspx");
+        }
+    </script>
+
+</body>
+</html>

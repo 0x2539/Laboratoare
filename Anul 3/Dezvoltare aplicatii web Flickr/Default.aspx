@@ -182,7 +182,7 @@
 
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='../css/jquery.guillotine.css' media='all' rel='stylesheet'>
-    <link href='demo.css' media='all' rel='stylesheet'>
+    <link href="thumbnail.css" media='all' rel='stylesheet'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, target-densitydpi=device-dpi'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 

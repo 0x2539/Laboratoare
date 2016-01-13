@@ -81,9 +81,9 @@
             {
                 System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
                 con.Open();
-                string strQuery = "select * from [dbo].[photos] where category=@category order by [Id] Desc";
+                string strQuery = "select * from [dbo].[photos] where [category] like @query or [description] like @query order by [Id] Desc";
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
-                cmd.Parameters.Add("@category", System.Data.SqlDbType.VarChar).Value = query;
+                cmd.Parameters.Add("@query", System.Data.SqlDbType.VarChar).Value = "%" + query + "%";
                 System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
 
                 while (myReader.Read())

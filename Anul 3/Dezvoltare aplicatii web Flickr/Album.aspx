@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" MasterPageFile="~/MasterPageMaster.master" AutoEventWireup="true" CodeFile="Album.aspx.cs" Inherits="Album" %>
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPageAlbum.master" AutoEventWireup="true" CodeFile="Album.aspx.cs" Inherits="Album" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
@@ -27,17 +27,26 @@
             }
             else
             {
-                AlbumNameTextBox.Text = "Invalid";
+                String newAlbum = Request.QueryString["newAlbum"];
+                if (newAlbum == "newAlbum")
+                {
+                    int newAlbumId = createNewAlbum();
+                    Response.Redirect("/Album.aspx?albumId=" + newAlbumId);
+                }
+                else
+                {
+                    AlbumNameTextBox.Text = "Invalid";
 
-                System.Xml.XmlDocument doc = new System.Xml.XmlDocument();// XDSPhoto.GetXmlDocument();
-                doc.LoadXml("<Photos></Photos>");
+                    System.Xml.XmlDocument doc = new System.Xml.XmlDocument();// XDSPhoto.GetXmlDocument();
+                    doc.LoadXml("<Photos></Photos>");
 
-                doc.Save(Server.MapPath("~/App_Data/temp.xml"));
-                //XDSPhoto.Data = doc.InnerXml;
-                XDSPhoto.DataFile = Server.MapPath("~/App_Data/temp.xml");
-                //XDSPhoto.Data = xDoc.InnerXml;
-                XDSPhoto.DataBind();
-                XDSPhoto.Save();
+                    doc.Save(Server.MapPath("~/App_Data/temp.xml"));
+                    //XDSPhoto.Data = doc.InnerXml;
+                    XDSPhoto.DataFile = Server.MapPath("~/App_Data/temp.xml");
+                    //XDSPhoto.Data = xDoc.InnerXml;
+                    XDSPhoto.DataBind();
+                    XDSPhoto.Save();
+                }
             }
 
             form1.Visible = canModify();
@@ -242,7 +251,7 @@
             {
                 System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
                 con.Open();
-                string strQuery = "select * from [dbo].[photos] where [album]=@id";
+                string strQuery = "select * from [dbo].[photos] where [album]=@id order by [Id] Desc";
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
                 cmd.Parameters.AddWithValue("@id", System.Data.SqlDbType.Int).Value = currentId;
                 System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
@@ -281,6 +290,31 @@
             return newPhoto;
         }
 
+        int createNewAlbum()
+        {
+            int id = -1;
+            try
+            {
+                System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+                con.Open();
+                //insert the file into database
+                string strQuery = "insert into [dbo].[albums] ([name], [user]) values (@name, @userId);SELECT CAST(scope_identity() AS int)";
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                cmd.Parameters.Add("@name", System.Data.SqlDbType.VarChar).Value = "new album";
+                cmd.Parameters.Add("@userId", System.Data.SqlDbType.Int).Value = userId;
+                //System.Data.SqlClient.SqlParameter theId = cmd.Parameters.Add("@[Id]", System.Data.SqlDbType.Int);
+                //theId.Direction = System.Data.ParameterDirection.Output;
+                object response = cmd.ExecuteScalar();
+                id = response != null ? (int)response : -2;
+                con.Close();
+                //id = Convert.ToInt64(theId.Value);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+            return id;
+        }
 
         Boolean canModify()
         {
@@ -291,30 +325,25 @@
             return false;
         }
 
-        void AddNewPhotoButton_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("~/NewPhoto?albumId=" + currentId);
-        }
     </script>
 
     <body>
-
-        <form id="form1" runat="server" defaultbutton="DoNothing">
-            <asp:Button ID="DoNothing" runat="server" Enabled="false" Style="display: none;" />
-            <div>
-                <asp:Panel ID="Panel1" runat="server" DefaultButton="ButtonSaveAlbumName">
-                    Album's Name:<asp:TextBox ID="AlbumNameTextBox" runat="server"></asp:TextBox>
-                    <asp:Button ID="ButtonSaveAlbumName" runat="server" OnClick="ButtonSaveAlbumName_Click" Style="display: none" />
-                </asp:Panel>
-            </div>
-
-            <asp:Button ID="AddNewPhotoButton" runat="server" Text="Add new photo" OnClick="AddNewPhotoButton_Click" />
-        </form>
-
+        
         <link href='../css/jquery.guillotine.css' media='all' rel='stylesheet'>
-        <link href='demo.css' media='all' rel='stylesheet'>
+        <link href='thumbnail.css' media='all' rel='stylesheet'>
+        <link href='textInput.css' media='all' rel='stylesheet'>
         <meta name='viewport' content='width=device-width, initial-scale=1.0, target-densitydpi=device-dpi'>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        <form id="form1" runat="server" defaultbutton="DoNothing" >
+            <asp:Button ID="DoNothing" runat="server" Enabled="false" Style="display: none;" />
+            <div style="width:100%; margin-left:200px;">
+                <asp:Panel ID="Panel1" runat="server" DefaultButton="ButtonSaveAlbumName">
+                    Album's Name:<asp:TextBox ID="AlbumNameTextBox" runat="server" CssClass="inputText"></asp:TextBox>
+                    <asp:Button ID="ButtonSaveAlbumName" runat="server" OnClick="ButtonSaveAlbumName_Click" Style="display: none"/>
+                </asp:Panel>
+            </div>
+        </form>
 
         <asp:XmlDataSource ID="XDSPhoto" runat="server" XPath="Photos/Photo"></asp:XmlDataSource>
 

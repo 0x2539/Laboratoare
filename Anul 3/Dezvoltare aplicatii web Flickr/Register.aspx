@@ -97,6 +97,7 @@
     <link rel='stylesheet prefetch' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css'>
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='login.css' media='all' rel='stylesheet'>
+    <link href='demo.css' media='all' rel='stylesheet'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, target-densitydpi=device-dpi'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
