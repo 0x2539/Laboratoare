@@ -258,6 +258,7 @@
             insertComment();
             loadComments();
             commentTextArea.InnerText = "";
+            Response.Redirect(Request.RawUrl);
         }
 
         void btnDeletePhoto_Click(object sender, EventArgs e)
