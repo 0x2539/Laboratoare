@@ -1,59 +1,149 @@
-﻿<%@ Page Language="C#" %>
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPageMaster.master" AutoEventWireup="true" %>
 
-<html>
-<head>
-    <title>Forms Authentication - Default Page</title>
-</head>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
-<script runat="server">
+    <script runat="server">
 
-    int userId;
+        int userId;
 
-    void Page_Load(object sender, EventArgs e)
-    {
-        if (Context.User.Identity.IsAuthenticated)
+        void Page_Load(object sender, EventArgs e)
         {
-            Welcome.Text = "Hello, " + Context.User.Identity.Name;
+            if (Context.User.Identity.IsAuthenticated)
+            {
+                Welcome.Text = "Hello, " + Context.User.Identity.Name;
 
-            ButtonProfile.Visible = true;
-            ButtonSignOut.Visible = true;
-            ButtonSignIn.Visible = false;
+                ButtonProfile.Visible = true;
+                ButtonSignOut.Visible = true;
+                ButtonSignIn.Visible = false;
 
-            userId = getUserId();
+                userId = getUserId();
+            }
+            else
+            {
+                Welcome.Text = "Hello, not authenticated";
+
+                ButtonProfile.Visible = false;
+                ButtonSignOut.Visible = false;
+                ButtonSignIn.Visible = true;
+            }
+
+            loadPhotos();
         }
-        else
-        {
-            Welcome.Text = "Hello, not authenticated";
 
-            ButtonProfile.Visible = false;
-            ButtonSignOut.Visible = false;
-            ButtonSignIn.Visible = true;
+        int getUserId()
+        {
+            if (Context.User.Identity.IsAuthenticated)
+            {
+                try
+                {
+                    System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+                    con.Open();
+                    string strQuery = "select [Id] from [dbo].[users] where [username]=@username";
+                    System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                    cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.Int).Value = Context.User.Identity.GetUserName();
+                    System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+                    if (myReader.Read())
+                    {
+                        // Assuming your desired value is the name as the 3rd field
+                        int id = -1;
+                        int.TryParse(myReader["Id"].ToString(), out id);
+                        myReader.Close();
+                        con.Close();
+                        return id;
+                    }
+
+                    myReader.Close();
+                    con.Close();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                }
+            }
+            return -1;
         }
 
-        loadPhotos();
-    }
 
-    int getUserId()
-    {
-        if (Context.User.Identity.IsAuthenticated)
+        private void loadPhotos()
         {
+            System.Diagnostics.Debug.WriteLine("getting list");
+            List<Models.PhotoDB> list = getPhotos();
+            System.Diagnostics.Debug.WriteLine("got list");
+
+            XElement xml = new XElement("Photos");
+
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml("<Photos></Photos>");
+            System.Xml.XmlNode rootNode = doc.SelectSingleNode("Photos");
+
+            System.Diagnostics.Debug.WriteLine("list size: " + list.Count);
+            foreach (Models.PhotoDB photo in list)
+            {
+
+                System.Diagnostics.Debug.WriteLine("list item: " + photo.ID);
+
+                System.Xml.XmlAttribute xmlPhotoId = doc.CreateAttribute("Id");
+                xmlPhotoId.Value = photo.ID.ToString();
+
+                System.Xml.XmlAttribute xmlphotoType = doc.CreateAttribute("photoType");
+                xmlphotoType.Value = photo.PhotoType;
+
+                System.Xml.XmlAttribute xmlPhoto = doc.CreateAttribute("photo");
+                xmlPhoto.Value = photo.Photo;
+
+                System.Xml.XmlAttribute xmlCategory = doc.CreateAttribute("category");
+                xmlCategory.Value = photo.Category;
+
+                System.Xml.XmlAttribute xmlDescription = doc.CreateAttribute("description");
+                xmlDescription.Value = photo.Description;
+                //XAttribute xmlPhotoPhotoType = new XAttribute("photoType", photo.PhotoType);
+                //XAttribute xmlPhotoPhoto = new XAttribute("photo", photo.Photo);
+                //XAttribute xmlPhotoCategory = new XAttribute("category", photo.Category);
+                //XAttribute xmlPhotoDescription = new XAttribute("description", photo.Description);
+                //XElement xmlPhoto = new XElement("Photo", xmlPhotoId, xmlPhotoPhotoType, xmlPhotoPhoto, xmlPhotoCategory, xmlPhotoDescription);
+                //xml.Add(xmlPhoto);
+                //System.Diagnostics.Debug.WriteLine(xmlPhoto.ToString());
+
+                System.Xml.XmlNode xmlNode = doc.CreateNode(System.Xml.XmlNodeType.Element, "Photo", "");
+                xmlNode.Attributes.Append(xmlPhotoId);
+                xmlNode.Attributes.Append(xmlphotoType);
+                xmlNode.Attributes.Append(xmlPhoto);
+                xmlNode.Attributes.Append(xmlCategory);
+                xmlNode.Attributes.Append(xmlDescription);
+                rootNode.AppendChild(xmlNode);
+            }
+
+            System.Diagnostics.Debug.WriteLine(xml.ToString());
+            System.Diagnostics.Debug.WriteLine(xml.Value);
+            System.Diagnostics.Debug.WriteLine("file: " + doc.InnerXml);
+
+            //System.Xml.XmlDocument xDoc = new System.Xml.XmlDocument();
+            //xDoc.LoadXml(xml.Value);
+
+            doc.Save(Server.MapPath("~/App_Data/tempAll.xml"));
+            //XDSPhoto.Data = doc.InnerXml;
+            XDSPhoto.DataFile = Server.MapPath("~/App_Data/tempAll.xml");
+            XDSPhoto.DataBind();
+            XDSPhoto.Save();
+            //XDSMovie.Data
+        }
+
+        private List<Models.PhotoDB> getPhotos()
+        {
+            List<Models.PhotoDB> photosList = new List<Models.PhotoDB>();
+
             try
             {
                 System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
                 con.Open();
-                string strQuery = "select [Id] from [dbo].[users] where [username]=@username";
+                string strQuery = "select * from [dbo].[photos] order by [Id] Desc";
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
-                cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.Int).Value = Context.User.Identity.GetUserName();
                 System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
 
-                if (myReader.Read())
+                while (myReader.Read())
                 {
-                    // Assuming your desired value is the name as the 3rd field
-                    int id = -1;
-                    int.TryParse(myReader["Id"].ToString(), out id);
-                    myReader.Close();
-                    con.Close();
-                    return id;
+                    photosList.Add(readerToPhotoDB(myReader));
                 }
 
                 myReader.Close();
@@ -63,138 +153,59 @@
             {
                 System.Diagnostics.Debug.WriteLine(ex.ToString());
             }
+            return photosList;
         }
-        return -1;
-    }
 
-
-    private void loadPhotos()
-    {
-        System.Diagnostics.Debug.WriteLine("getting list");
-        List<Models.PhotoDB> list = getPhotos();
-        System.Diagnostics.Debug.WriteLine("got list");
-
-        XElement xml = new XElement("Photos");
-
-        System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-        doc.LoadXml("<Photos></Photos>");
-        System.Xml.XmlNode rootNode = doc.SelectSingleNode("Photos");
-
-        System.Diagnostics.Debug.WriteLine("list size: " + list.Count);
-        foreach (Models.PhotoDB photo in list)
+        private Models.PhotoDB readerToPhotoDB(System.Data.SqlClient.SqlDataReader myReader)
         {
+            Models.PhotoDB newPhoto = new Models.PhotoDB();
 
-            System.Diagnostics.Debug.WriteLine("list item: " + photo.ID);
+            newPhoto.ID = int.Parse(myReader["Id"].ToString());
+            newPhoto.PhotoType = myReader["photoType"].ToString();
+            newPhoto.Category = myReader["category"].ToString();
+            newPhoto.Description = myReader["description"].ToString();
 
-            System.Xml.XmlAttribute xmlPhotoId = doc.CreateAttribute("Id");
-            xmlPhotoId.Value = photo.ID.ToString();
+            //considering "photo's" bytes are on 2nd column
+            byte[] Photo = (byte[])myReader.GetValue(2);
 
-            System.Xml.XmlAttribute xmlphotoType = doc.CreateAttribute("photoType");
-            xmlphotoType.Value = photo.PhotoType;
+            string base64String = Convert.ToBase64String(Photo, 0, Photo.Length);
+            newPhoto.Photo = base64String;
 
-            System.Xml.XmlAttribute xmlPhoto = doc.CreateAttribute("photo");
-            xmlPhoto.Value = photo.Photo;
-
-            System.Xml.XmlAttribute xmlCategory = doc.CreateAttribute("category");
-            xmlCategory.Value = photo.Category;
-
-            System.Xml.XmlAttribute xmlDescription = doc.CreateAttribute("description");
-            xmlDescription.Value = photo.Description;
-            //XAttribute xmlPhotoPhotoType = new XAttribute("photoType", photo.PhotoType);
-            //XAttribute xmlPhotoPhoto = new XAttribute("photo", photo.Photo);
-            //XAttribute xmlPhotoCategory = new XAttribute("category", photo.Category);
-            //XAttribute xmlPhotoDescription = new XAttribute("description", photo.Description);
-            //XElement xmlPhoto = new XElement("Photo", xmlPhotoId, xmlPhotoPhotoType, xmlPhotoPhoto, xmlPhotoCategory, xmlPhotoDescription);
-            //xml.Add(xmlPhoto);
-            //System.Diagnostics.Debug.WriteLine(xmlPhoto.ToString());
-
-            System.Xml.XmlNode xmlNode = doc.CreateNode(System.Xml.XmlNodeType.Element, "Photo", "");
-            xmlNode.Attributes.Append(xmlPhotoId);
-            xmlNode.Attributes.Append(xmlphotoType);
-            xmlNode.Attributes.Append(xmlPhoto);
-            xmlNode.Attributes.Append(xmlCategory);
-            xmlNode.Attributes.Append(xmlDescription);
-            rootNode.AppendChild(xmlNode);
+            return newPhoto;
         }
 
-        System.Diagnostics.Debug.WriteLine(xml.ToString());
-        System.Diagnostics.Debug.WriteLine(xml.Value);
-        System.Diagnostics.Debug.WriteLine("file: " + doc.InnerXml);
-
-        //System.Xml.XmlDocument xDoc = new System.Xml.XmlDocument();
-        //xDoc.LoadXml(xml.Value);
-
-        doc.Save(Server.MapPath("~/App_Data/tempAll.xml"));
-        //XDSPhoto.Data = doc.InnerXml;
-        XDSPhoto.DataFile = Server.MapPath("~/App_Data/tempAll.xml");
-        XDSPhoto.DataBind();
-        XDSPhoto.Save();
-        //XDSMovie.Data
-    }
-
-    private List<Models.PhotoDB> getPhotos()
-    {
-        List<Models.PhotoDB> photosList = new List<Models.PhotoDB>();
-
-        try
+        void Profile_Click(object sender, EventArgs e)
         {
-            System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
-            con.Open();
-            string strQuery = "select * from [dbo].[photos] order by [Id] Desc";
-            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
-            System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
-
-            while (myReader.Read())
-            {
-                photosList.Add(readerToPhotoDB(myReader));
-            }
-
-            myReader.Close();
-            con.Close();
+            Response.Redirect("MyProfile.aspx?userId=" + userId);
         }
-        catch (Exception ex)
+
+        void SignIn_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine(ex.ToString());
+            Response.Redirect("SignIn.aspx");
         }
-        return photosList;
-    }
 
-    private Models.PhotoDB readerToPhotoDB(System.Data.SqlClient.SqlDataReader myReader)
-    {
-        Models.PhotoDB newPhoto = new Models.PhotoDB();
+        void SignOut_Click(object sender, EventArgs e)
+        {
+            FormsAuthentication.SignOut();
+            Response.Redirect("Default.aspx");
+        }
+    </script>
 
-        newPhoto.ID = int.Parse(myReader["Id"].ToString());
-        newPhoto.PhotoType = myReader["photoType"].ToString();
-        newPhoto.Category = myReader["category"].ToString();
-        newPhoto.Description = myReader["description"].ToString();
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='../css/jquery.guillotine.css' media='all' rel='stylesheet'>
+    <link href='demo.css' media='all' rel='stylesheet'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, target-densitydpi=device-dpi'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-        //considering "photo's" bytes are on 2nd column
-        byte[] Photo = (byte[])myReader.GetValue(2);
+    <form action="/search" method="get" class="sfm">
+        <div class="box">
+            <div class="container-1">
+                <span class="icon"><i class="fa fa-search"></i></span>
+                <input type="search" name="search" id="search" placeholder="Search..." />
+            </div>
+        </div>
+    </form>
 
-        string base64String = Convert.ToBase64String(Photo, 0, Photo.Length);
-        newPhoto.Photo = base64String;
-
-        return newPhoto;
-    }
-
-    void Profile_Click(object sender, EventArgs e)
-    {
-        Response.Redirect("MyProfile.aspx?userId=" + userId);
-    }
-
-    void SignIn_Click(object sender, EventArgs e)
-    {
-        Response.Redirect("SignIn.aspx");
-    }
-
-    void SignOut_Click(object sender, EventArgs e)
-    {
-        FormsAuthentication.SignOut();
-        Response.Redirect("Default.aspx");
-    }
-</script>
-
-<body>
     <form id="Form1" runat="server">
         <h3>Using Forms Authentication
         <asp:Button ID="ButtonSignIn" runat="server" Text="Sign In" Style="float: right; margin: 10px" OnClick="SignIn_Click" />
@@ -204,10 +215,6 @@
         <asp:Label ID="Welcome" runat="server" />
         <p>
     </form>
-    <link href='../css/jquery.guillotine.css' media='all' rel='stylesheet'>
-    <link href='demo.css' media='all' rel='stylesheet'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0, target-densitydpi=device-dpi'>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <asp:XmlDataSource ID="XDSPhoto" runat="server" XPath="Photos/Photo"></asp:XmlDataSource>
 
@@ -235,5 +242,5 @@
             <br />
         </SeparatorTemplate>
     </asp:Repeater>
-</body>
-</html>
+
+</asp:Content>
