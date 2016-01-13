@@ -9,7 +9,6 @@
         void Page_Load(object sender, EventArgs e)
         {
             query = Request.QueryString["search"];
-
             loadPhotos();
         }
 

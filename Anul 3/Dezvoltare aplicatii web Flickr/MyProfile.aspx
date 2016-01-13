@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" MasterPageFile="~/MasterPageMyProfile.master" AutoEventWireup="true" CodeFile="MyProfile.aspx.cs" Inherits="MyProfile" %>
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPageMaster.master" AutoEventWireup="true" CodeFile="MyProfile.aspx.cs" Inherits="MyProfile" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
@@ -8,12 +8,25 @@
 
     <script runat="server">
 
-        int userId;
+        int userId = -1;
         int currentId;
 
         void Page_Load(object sender, EventArgs e)
         {
-            int.TryParse(Request.QueryString["userId"], out userId);
+            int queryId = -1;
+            int.TryParse(Request.QueryString["userId"], out queryId);
+            
+            userId = getUserId();
+            
+            if (userId != queryId)
+            {
+                AddNewAlbumButton.Visible = false;
+            }
+            
+            if(userId == -1)
+            {
+                userId = queryId;
+            }
 
             if (userIsValid())
             {
@@ -31,6 +44,40 @@
                 XDSAlbums.DataBind();
                 XDSAlbums.Save();
             }
+        }
+
+        int getUserId()
+        {
+            if (Context.User.Identity.IsAuthenticated)
+            {
+                try
+                {
+                    System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True;");
+                    con.Open();
+                    string strQuery = "select [Id] from [dbo].[users] where [username]=@username";
+                    System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(strQuery, con);
+                    cmd.Parameters.AddWithValue("@username", System.Data.SqlDbType.Int).Value = Context.User.Identity.GetUserName();
+                    System.Data.SqlClient.SqlDataReader myReader = cmd.ExecuteReader();
+
+                    if (myReader.Read())
+                    {
+                        // Assuming your desired value is the name as the 3rd field
+                        int id = -1;
+                        int.TryParse(myReader["Id"].ToString(), out id);
+                        myReader.Close();
+                        con.Close();
+                        return id;
+                    }
+
+                    myReader.Close();
+                    con.Close();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                }
+            }
+            return -1;
         }
 
         Boolean userIsValid()

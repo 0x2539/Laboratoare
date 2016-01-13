@@ -10,21 +10,10 @@
         {
             if (Context.User.Identity.IsAuthenticated)
             {
-                Welcome.Text = "Hello, " + Context.User.Identity.Name;
-
-                ButtonProfile.Visible = true;
-                ButtonSignOut.Visible = true;
-                ButtonSignIn.Visible = false;
-
                 userId = getUserId();
             }
             else
             {
-                Welcome.Text = "Hello, not authenticated";
-
-                ButtonProfile.Visible = false;
-                ButtonSignOut.Visible = false;
-                ButtonSignIn.Visible = true;
             }
 
             loadPhotos();
@@ -196,25 +185,6 @@
     <link href='demo.css' media='all' rel='stylesheet'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, target-densitydpi=device-dpi'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
-    <form action="/search" method="get" class="sfm">
-        <div class="box">
-            <div class="container-1">
-                <span class="icon"><i class="fa fa-search"></i></span>
-                <input type="search" name="search" id="search" placeholder="Search..." />
-            </div>
-        </div>
-    </form>
-
-    <form id="Form1" runat="server">
-        <h3>Using Forms Authentication
-        <asp:Button ID="ButtonSignIn" runat="server" Text="Sign In" Style="float: right; margin: 10px" OnClick="SignIn_Click" />
-            <asp:Button ID="ButtonProfile" runat="server" Text="Profile" Style="float: right; margin: 10px" OnClick="Profile_Click" />
-            <asp:Button ID="ButtonSignOut" runat="server" Text="Sign Out" Style="float: right; margin: 10px" OnClick="SignOut_Click" />
-        </h3>
-        <asp:Label ID="Welcome" runat="server" />
-        <p>
-    </form>
 
     <asp:XmlDataSource ID="XDSPhoto" runat="server" XPath="Photos/Photo"></asp:XmlDataSource>
 
