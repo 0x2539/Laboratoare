@@ -1,3 +1,7 @@
+
+def get_matrix_transpose(matrix):
+	return [list(x) for x in zip(*matrix)]
+
 def det2(l):
 	n=len(l)
 	if (n>2):
@@ -79,11 +83,21 @@ def get_determinant(matrix, max_line_col):
 	# det = numpy.exp(logdet)
 	# return sign * det
 
-def check_determinanti_de_colt(matrix):
+def check_determinanti_de_colt_nenul(matrix):
 	k = 1
 	while k <= len(matrix):
 		print 'det', get_determinant(matrix, k)
 		if get_determinant(matrix, k) == 0:
+			print 'determinant de colt nul, cu k: %s si valoare %s' % (str(k), str(get_determinant(matrix, k)))
+			return False
+		k += 1
+	return True
+
+def check_determinanti_de_colt_positive(matrix):
+	k = 1
+	while k <= len(matrix):
+		print 'det', get_determinant(matrix, k)
+		if get_determinant(matrix, k) > 0:
 			print 'determinant de colt nul, cu k: %s si valoare %s' % (str(k), str(get_determinant(matrix, k)))
 			return False
 		k += 1
