@@ -1,3 +1,8 @@
+import math
+
+def nCr(n, r):
+    f = math.factorial
+    return f(n) / f(r) / f(n-r)
 
 def get_matrix_transpose(matrix):
 	return [list(x) for x in zip(*matrix)]
@@ -102,3 +107,12 @@ def check_determinanti_de_colt_positive(matrix):
 			return False
 		k += 1
 	return True
+
+def generate_combinations_matrix(n, p):
+	matrix = get_matrix(n)
+
+	for i in range(n):
+		for j in range(n):
+			matrix[i][j] = nCr(i, p + j)
+
+	return matrix
