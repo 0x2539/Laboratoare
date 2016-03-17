@@ -113,6 +113,8 @@ def generate_combinations_matrix(n, p):
 
 	for i in range(n):
 		for j in range(n):
-			matrix[i][j] = nCr(i, p + j)
+			# TODO which one to choose???? first one is the one from the homework, but i < p+j and that's wrong
+			# matrix[i][j] = nCr(i, p + j)
+			matrix[i][j] = nCr(p + j, i)
 
 	return matrix

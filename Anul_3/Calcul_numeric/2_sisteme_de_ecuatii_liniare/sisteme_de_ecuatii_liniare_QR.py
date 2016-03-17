@@ -14,7 +14,7 @@ def initial_init(matrix):
 	r = matrix_utils.get_matrix(m)
 	q = matrix_utils.get_matrix(m)
 	
-	r[0][0] = math.sqrt(sum[matrix[i][0] ** 2 for i in range(m)])
+	r[0][0] = math.sqrt(sum([matrix[i][0] ** 2 for i in range(m)]))
 
 	for i in range(m):
 		q[i][0] = matrix[i][0] / r[0][0]

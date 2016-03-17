@@ -1,2 +1,4 @@
 .DS_Store
-.pyc
+*/.DS_Store
+*.pyc
+*/*.pyc
