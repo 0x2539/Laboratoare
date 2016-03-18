@@ -48,7 +48,7 @@ def find_y_solution(matrix, q_matrix, b_array):
 	y = [0 for i in range(m)]
 
 	for i in range(m):
-		y[i] = sum([q_matrix[i][j] * b_array[j] for j in range(m)])
+		y[i] = sum([q_matrix[j][i] * b_array[j] for j in range(m)])
 
 	return y
 

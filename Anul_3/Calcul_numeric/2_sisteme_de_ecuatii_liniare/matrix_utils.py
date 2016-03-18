@@ -1,8 +1,11 @@
 import math
 
 def nCr(n, r):
-    f = math.factorial
-    return f(n) / f(r) / f(n-r)
+	if r > n:
+		return 0
+
+	f = math.factorial
+	return f(n) / f(r) / f(n-r)
 
 def get_matrix_transpose(matrix):
 	return [list(x) for x in zip(*matrix)]
@@ -116,5 +119,6 @@ def generate_combinations_matrix(n, p):
 			# TODO which one to choose???? first one is the one from the homework, but i < p+j and that's wrong
 			# matrix[i][j] = nCr(i, p + j)
 			matrix[i][j] = nCr(p + j, i)
+			# matrix[i][j] = nCr(p + j, i)
 
 	return matrix
