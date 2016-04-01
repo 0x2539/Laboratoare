@@ -31,17 +31,17 @@ def calculations(A, n, b):
     global temp
     global er
 
-    y[1] = (1.0 - sigma) * x[1]
+    y[0] = (1.0 - sigma) * x[0]
     suma = 0
     for j in range(1, n):
-        suma = suma + A[1][j] * x[j]
+        suma = suma + A[0][j] * x[j]
 
-    temp = sigma / A[1][1]
-    y[1] = y[1] + temp * (b[1] - suma)
+    temp = sigma / A[0][0]
+    y[0] = y[0] + temp * (b[0] - suma)
     for i in range(1, n):
         y[i] = (1 - sigma) * x[i]
         suma = 0
-        for j in range(0, i-1):
+        for j in range(0, i):
             suma = suma + A[i][j] * y[j]
 
         suma2 = 0
@@ -91,7 +91,7 @@ def GS(A, iteratii, n, b):
         y[i] = 0
         xi[0][i] = 0
     
-    for k in range(0, p-1):
+    for k in range(0, p):
         sigma = 2.0 * k
         sigma = sigma / p
         m = 0
