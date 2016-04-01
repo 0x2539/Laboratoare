@@ -34,7 +34,7 @@ def prop_14(matrix, r_matrix, q_matrix):
 		)
 
 		for i in range(m):
-			q_matrix[i][k] = (1.0 / r_matrix[k][k]) * (matrix[i][k] - sum(r_matrix[j][k] * q_matrix[i][j] for j in range(k)))
+			q_matrix[i][k] = (1.0 / r_matrix[k][k]) * (matrix[i][k] - sum([r_matrix[j][k] * q_matrix[i][j] for j in range(k)]))
 
 	if check_if_QR_should_fail(r_matrix):
 		print 'FAILED, r_matrix has a 0 value:', r_matrix
