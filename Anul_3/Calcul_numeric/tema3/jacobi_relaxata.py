@@ -52,7 +52,7 @@ def main_loop(matrix, iteratii, norma_infinit, b_array):
 	x_JR = [0 for i in range(0, m)]
 	epsilon = 10.0**(-10.0)
 
-	for k in range(0, p-1):
+	for k in range(1, p):
 		sigma = ((2.0 * k) / (p*t))
 		print 'sigma', sigma * p
 
@@ -74,18 +74,19 @@ def main_loop(matrix, iteratii, norma_infinit, b_array):
 		while err >= epsilon:
 			err, q, temp_x = calculation(matrix, q, temp_b, B, temp_x)
 
-		# if k == 0:
-		# 	mo = q
-		# 	sigmao = sigma
-		for i in range(0, m):
-			x_JR[i] = temp_x[i]
-		# elif q < mo:
-		# 	mo = q
-		# 	sigmao = sigma
-		# 	for i in range(0, m):
-		# 		x_JR[i] = temp_x[i]
+		if k == 1:
+			mo = q
+			sigmao = sigma
+			for i in range(0, m):
+				x_JR[i] = str(temp_x[i])
+		elif q < mo:
+			mo = q
+			sigmao = sigma
+			for i in range(0, m):
+				x_JR[i] = temp_x[i]
 
-	print 'solution', sorted(x_JR)
+	print 'solution'
+	print '\n'.join(x_JR)
 
 
 

@@ -86,16 +86,17 @@ def main_loop(matrix, iteratii, norma_infinit, b_array):
 			mo = it
 			sigmao = sigma
 			for i in range(0, m):
-				x_JR[i] = temp_x[i]
+				x_JR[i] = str(temp_x[i])
 		elif it < mo:
 			mo = it
 			sigmao = sigma
 			for i in range(0, m):
-				x_JR[i] = temp_x[i]
+				x_JR[i] = str(temp_x[i])
 
 	print 'mo', mo
 	print 'sigmao', sigmao
-	print 'solution', sorted(x_JR)
+	print 'solution'
+	print '\n'.join(x_JR)
 
 
 

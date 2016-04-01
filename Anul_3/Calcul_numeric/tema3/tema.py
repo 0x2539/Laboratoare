@@ -21,12 +21,12 @@ def create_input(size):
 def solve(size):
 	matrix, b_array = create_input(size)
 	
-	# norma_infinit = jacobi_relaxata.get_norma_infinit(matrix)
-	# jacobi_relaxata.main_loop(matrix, size, norma_infinit, b_array)
+	norma_infinit = jacobi_relaxata.get_norma_infinit(matrix)
+	jacobi_relaxata.main_loop(matrix, size, norma_infinit, b_array)
 
 	# gradient.GC(matrix, len(matrix), b_array)
 	
-	gauss.GS(matrix, len(matrix), len(matrix), b_array)
+	# gauss.GS(matrix, len(matrix), len(matrix), b_array)
 
 
 if __name__ == '__main__':

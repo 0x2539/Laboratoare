@@ -91,7 +91,7 @@ def GS(A, iteratii, n, b):
         y[i] = 0
         xi[0][i] = 0
     
-    for k in range(0, p):
+    for k in range(1, p):
         sigma = 2.0 * k
         sigma = sigma / p
         m = 0
@@ -101,17 +101,16 @@ def GS(A, iteratii, n, b):
         while er >= epsilon:
             m = calculations(A, n, b)
 
-        # if k == 0:
-        #     mo = m
-        #     sigmao = sigma
-        for i in range(0, n):
-            xo[i] = x[i]
-
-        # elif m < mo:
-        #     mo = m
-        #     sigmao = sigma
-        #     for i in range(0, n):
-        #         xo[i] = x[i]
+        if k == 0:
+            mo = m
+            sigmao = sigma
+            for i in range(0, n):
+                xo[i] = x[i]
+        elif m < mo:
+            mo = m
+            sigmao = sigma
+            for i in range(0, n):
+                xo[i] = x[i]
 
     print xo
 
