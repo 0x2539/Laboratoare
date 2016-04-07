@@ -1,0 +1,40 @@
+fmod MYNAT is
+	sort Nat .
+	op 0 : -> Nat .
+	op s_ : Nat -> Nat . *** ai pus asa, nu mai scrii (s(s(0)))..ci (s s 0)
+  	op max : Nat Nat -> Nat [assoc comm] . 
+  	op min : Nat Nat -> Nat [assoc comm] .
+  	op par : Nat -> Bool .
+  	op impar : Nat -> Bool .
+  	var N M : Nat .
+  	
+  	eq max(s(N),s(M)) = s(max(N,M)) .
+  	eq max(0,M) = M  .
+  
+  	eq min(s(N),s(M)) = s(min(N,M)) .
+  	eq min(0,M) = 0  .
+  
+  	eq par(0) = true .
+  	eq par(s 0) = false .
+  	eq impar(0) = false .
+  	eq impar(s 0 ) = true .
+  
+  	eq par(s s M) = par(M) .
+  	eq impar(s s M) = impar(M) .
+  	
+  
+  	
+
+  	
+endfm
+  	
+  	
+  
+red max(s(s(0)), s(0)) .
+red min(s(s(0)), s(0)) .
+red par (s s 0) .
+red impar( s 0) .
+red min(s(s(0)),s(0)) .
+red par(s(s(0)) .
+red impar(s(s(s(0))) .
+

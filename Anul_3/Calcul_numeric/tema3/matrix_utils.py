@@ -62,6 +62,8 @@ def det2(l):
 
 # data = [[4, 3], [6, 3]]
 
+res = [0.0910140527, 0.32479293, 0.700278532, 1.1791699, 1.725370323, 2.2946296, 2.84083002, 3.319721467, 3.69250706, 3.9289859472]
+
 def get_matrix(size, fill_value=0):
 	"""
 	Creates an empty matrix with n lines and n columns, n == size

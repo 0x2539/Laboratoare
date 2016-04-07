@@ -1,0 +1,25 @@
+fmod LIST-INT3 is
+protecting INT .
+sort List .
+subsort Int < List .
+op nil : -> List .
+op _ _ : List List -> List [assoc id: nil] .
+op _in_ : Int List -> Bool .
+op reverse : List -> List .
+op append : List List -> List .
+vars I J : Int .
+vars L L2 : List .
+  
+***eq I in nil = false . nu mai avem nevoie..e acop de eq cu owise
+eq I in L I L2 = true .
+eq I in L = false [owise] .
+  
+eq append(L , L2) = L L2 .
+  
+eq reverse(nil) = nil .
+ eq reverse ( I L ) = reverse (L) I .
+endfm
+
+red 5 in 1 2 3 4 5 6 7 .
+red reverse (1 2 3) .
+red append ( 1 2 3 , 4 10 ) .

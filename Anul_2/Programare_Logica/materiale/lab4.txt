@@ -1,0 +1,77 @@
+
+modul parametrizat
+
+
+fmod PAIR {X :: TRIV , Y :: TRIV} is
+  
+  sort Pair { X , Y } .
+  op abc_,_def : X$Elt Y$Elt -> Pair { X  , Y } .
+  endfm
+
+fmod PERECHE_NAT_INT is protecting PAIR { Nat , Int } . ***  Nat e nume de view aici
+  endfm
+
+red abc 5 , -3 def .
+
+*********************************************
+
+fth TRIV# is
+
+including TRIV .
+
+op #_ : Elt -> Elt .
+
+endfth
+  
+  fmod LIST#{X :: TRIV#} is
+
+sort List{X} .
+
+subsort X$Elt < List{X} .
+
+op nil : -> List{X} .
+
+op _ _ : List{X} List{X} -> List{X} [assoc id: nil] .
+
+op apply# : List{X} -> List{X} .
+
+var I : X$Elt . var L : List{X} .
+
+eq apply#(nil) = nil .
+
+eq apply#(I L) = (# I) apply#(L) .
+
+endfm
+  
+  view MyInt# from TRIV# to INT is
+
+sort Elt to Int .
+
+op #_ to -_ .
+
+endv
+
+fmod LIST#-INT is
+
+protecting LIST#{MyInt#} .
+
+endfm
+
+red apply#( 2 3 4 ) .
+    
+    
+    view MyInt#2 from TRIV# to INT is
+
+sort Elt to Int .
+
+op # X:Elt to term (X:Int + 2) .
+
+endv
+
+fmod INT-LIST#2 is
+
+protecting LIST#{MyInt#2} .
+
+endfm
+
+red apply#( 2 3 4 ) .

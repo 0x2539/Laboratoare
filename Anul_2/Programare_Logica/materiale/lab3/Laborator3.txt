@@ -1,0 +1,151 @@
+(Laborator1-exerc 3)
+fmod MYINT is
+
+sort Int .
+
+op 0 : -> Int .
+op s_ : Int -> Int .
+op p_ : Int -> Int .
+op _+_ : Int Int -> Int [comm].
+op _-_ : Int Int -> Int [comm].
+op _*_ : Int Int -> Int [comm]. 
+
+vars N M : Int .
+  
+eq 0 + M = M .
+eq s(N) + M = s(N + M) .
+  
+eq M - 0 = M .
+eq N - s(M) = p(N - M) .
+eq N - p(M) = s(N - M) .  
+
+eq 0 * M = 0 .
+eq s(N) * M = (N * M) + M .
+  
+eq s(p(M)) = M .
+eq p(s(M)) = M .
+
+
+endfm
+
+reduce p(p(0)) + s(0) .
+reduce s(s(s(s(0)))) - s(s(0)) .
+
+-------------------------------------------------------
+(Laborator3)
+(pt varianta 2 de liste)
+fmod LIST-INT2 is
+
+protecting INT .
+
+sorts NList List .
+
+subsort Int < NList < List .
+
+op nil : -> List .
+
+op _ _ : Int List -> NList [id: nil] .
+***[id: nil] echivalent cu
+vars N M : List
+  
+eq N nil = N .
+eq nil N = N .
+***pana aici e echivalenta
+endfm
+
+reduce 5 9 9 .
+
+--------------------------------------------------------
+(1.a)
+fmod LIST-INT2 is
+		protecting INT .
+
+sorts NList List .
+subsort Int < NList < List .
+
+op nil : -> List .
+op _ _ : Int List -> NList [id: nil] .
+op _in_ : Int NList -> Bool .
+  
+vars K I : Int .
+vars L L2 : List .
+  
+eq I in nil = false .
+eq I in (I L) = true .
+eq I in (K L) = I in L .
+
+endfm
+
+
+reduce 3 in (6 9 7 2) .
+------------------------------------------------------------
+(1.c,b)
+fmod LIST-INT2 is
+		protecting INT .
+
+sorts NList List .
+subsort Int < NList < List .
+
+op nil : -> List .
+op _ _ : Int List -> NList [ id: nil] .
+op append : List List -> List .
+op reverse : List -> List .
+  
+vars K I : Int .
+vars L L2 : List .
+  
+eq append(nil,L) = L .
+eq append(L,nil) = L .
+eq append(I L,L2) = I append(L,L2) .
+
+eq reverse(nil) = nil .
+***eq reverse(I L) = reverse(L) I . sau altfel
+eq reverse(I L) = append(reverse(L), I ).
+endfm
+
+
+***set trace on .
+***set trace whole on .
+reduce reverse(1 5 9) .
+reduce append(1 2 6 , 25 ) . 
+-------------------------------------------------------------
+fmod LIST-INT2 is
+		protecting INT .
+
+sorts NList List .
+subsort Int < NList < List .
+
+op nil : -> List .
+op _ _ : Int List -> NList [id: nil] .
+
+  
+endfm
+
+fmod Bubble is
+		protecting  LIST-INT2 .
+
+op issorted : List -> Bool .
+op bubblesort : List -> List .
+op bubble : List -> List . 
+
+vars I K : Int .
+var L : List .
+  
+
+eq issorted ( I ) = true .
+ceq issorted (I K L) = issorted (K L) if(I < K) . 
+eq issorted ( L ) = false [owise] .
+***pentru celelalte cazuri decat cele expuse
+  
+eq bubble(I) = I .
+ceq  bubble(I K L) = I bubble( K L ) if (I < K) . 
+eq bubble(I K L) = K bubble(I L) [owise] .
+ceq bubblesort (L) = bubblesort (bubble ( L )) if not issorted (L) .
+eq  bubblesort (L) = L [owise] .
+  
+
+endfm
+
+reduce issorted( 5 8 1 6 20 ) .
+reduce issorted( 1 6 20 ) .
+reduce  bubblesort(1 5 2 9 12 03 56 788) .

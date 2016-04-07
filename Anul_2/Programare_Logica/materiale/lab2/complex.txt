@@ -1,0 +1,16 @@
+fmod COMPLEX is
+  protecting INT .
+  sort Complex .
+  op _+_i : Int Int -> Complex .
+  op _+_ : Complex Complex -> Complex .
+  op _*_ : Complex Complex -> Complex .
+  
+  vars A B C D : Int .
+  
+  eq (A + B i) + (C + D i) = (A + C) + (B + D) i .
+  eq (A + B i) * (C + D i) = (A * C - B * D) + ( A * D + C * B) i .
+ 
+ endfm .
+
+red (2 + 3 i) + (1 + 2 i) .
+red (1 + 1 i) * (1 + 1 i) .

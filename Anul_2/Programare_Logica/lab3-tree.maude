@@ -1,0 +1,94 @@
+fmod TREE is
+	protecting INT .
+	sort Tree .
+	op empty : -> Tree .
+	op _ _ _ : Tree Int Tree -> Tree .
+endfm
+
+fmod LIST-INT2 is
+	protecting INT .
+	sorts NList List .
+	subsort Int < NList < List .
+	op nil : -> List .
+	op _ _ : Int List -> NList [id: nil] .
+
+
+endfm
+
+
+fmod SEARCH is
+	protecting TREE .
+
+	op search : Int Tree -> Bool .
+
+	vars L R : Tree .
+	var I : Int .
+	var V : Int .
+
+	eq search(V, empty) = false .
+	ceq search(V, L I R) = true if I == V .
+	eq search(V, L I R) = search(V, R) or search(V, L) .
+endfm
+
+
+fmod DEPTH is
+	protecting TREE .
+
+	op depth : Tree Int -> Int .
+
+	vars L R : Tree .
+	var I : Int .
+	var V : Int .
+
+	eq depth(empty, V) = V .
+	eq depth(L I R, V) = max(depth(L, V + 1), depth(R, V + 1)) .
+endfm
+
+
+fmod TRAVERSING is
+	protecting TREE .
+	protecting LIST-INT2 .
+
+	op srd : Tree -> List .
+
+	vars L R : Tree .
+	var I : Int .
+	var V : Int .
+
+	eq srd(empty) = nil .
+	eq srd(L I R) = srd(L) I srd(R) .
+endfm
+
+
+fmod BINARY-TREE is
+	protecting TREE .
+	protecting LIST-INT2 .
+	protecting TRAVERSING .
+
+	op a-bt-insert : Int Tree -> Tree .
+	op bt-insert : List Tree -> Tree .
+	op bt-sort : List -> List .
+
+	vars L R T : Tree .
+	var I : Int .
+	var V : Int .
+	var XS : List .
+
+	eq a-bt-insert(V, empty) = empty V empty .
+	ceq a-bt-insert(V, L I R) = a-bt-insert(V, L) I R if V <= I .
+	ceq a-bt-insert(V, L I R) = L I a-bt-insert(V, R) if V > I .
+
+	eq bt-insert(nil, T) = T .
+	eq bt-insert(V XS, T) = bt-insert(XS, a-bt-insert(V, T)) .
+
+	eq bt-sort(XS) = srd(bt-insert(XS, empty)) .
+endfm
+
+
+fmod MIRROR is
+	protecting TREE .
+	op mirror : Tree -> Tree .
+	vars L R : Tree . var I : Int .
+	eq mirror(empty) = empty .
+	eq mirror(L I R) = mirror(R) I mirror(L) .
+endfm

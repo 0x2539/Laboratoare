@@ -1,0 +1,45 @@
+fmod MYNAT is
+	sorts Zero NzNat Nat .
+	subsort Zero NzNat < Nat .
+	
+  	op 0 : -> Zero .
+	op s_ : Nat -> NzNat .
+	op _+_ : Nat Nat -> Nat [assoc comm prec 33] .
+	op _*_ : Nat Nat -> Nat [assoc comm prec 31] .
+  	op _<_ : Nat Nat -> Bool .
+  	op _>_ : Nat Nat -> Bool .
+  	op _>=_ : Nat Nat -> Bool . 
+  	op _<=_ : Nat Nat -> Bool .
+  	op max : Nat Nat -> Nat [assoc comm] .
+	
+  	vars N M : Nat .
+	
+  	eq 0 + M = M .
+	eq s(N) + M = s(N + M) .
+	eq 0 * M = 0 .
+	eq s(N) * M = (N * M) + M .
+
+  	eq 0 < 0 = false .
+  	eq M < 0 = false .
+  	eq 0 < M = true .
+  	eq s(M) < s(N) = M < N .
+  
+  	eq 0 > 0 = false .
+  	eq M > 0 = true .
+  	eq 0 > M = false .
+  	eq M > N = not ( M <= N ) .
+  
+  	eq M >= N = not ( M < N ) .
+  	eq max(s(N),s(M)) = s(max(N,M)) .
+  	eq max(0,M) = M  .
+  	ceq max(M,N) = M if (N < M) or (M == N) .
+  	eq max(M,N) = N [ owise ] .
+  
+  	
+  
+endfm
+*** eq M>=n = not(m<n)
+***reduce e ca sa ii dai sa faca ceva
+
+red s(s(s(0))) > s(s(0)) .
+red max( s(s(s(0))), s(s(0)) ) .

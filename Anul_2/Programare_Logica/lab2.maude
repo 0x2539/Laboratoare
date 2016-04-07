@@ -1,0 +1,26 @@
+fmod COMPLEX-NUMBERS is
+
+	protecting INT .
+	protecting FLOAT .
+	sort Complex .
+	subsort Int < Complex .
+
+	op _ _ : Int Int -> Complex .
+	op plus : Complex Complex -> Complex .
+	op modul : Int -> Int .
+	op rest : Int Int -> Int .
+	op radical : Float -> Float .
+	op podea : Float -> Float .
+	op divisions : Int Int -> Int .
+
+	vars q w : Complex .
+	vars a b x z : Int .
+	vars f f2 : Float .
+
+	eq plus(a b, x z) = (a + x) (b + z) .
+	eq modul(a) = abs(a) .
+	eq rest(a, b) = a rem b .
+	eq radical(f) = sqrt(f) .
+	eq podea(f) = floor(f) .
+	eq divisions(a, b) = a quo b .
+endfm

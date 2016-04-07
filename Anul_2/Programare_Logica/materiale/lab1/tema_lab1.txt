@@ -1,0 +1,30 @@
+fmod MYINT is
+	sorts NzInt Int . ***am declarat multimile
+	subsort NzInt < Int
+
+	***declar operatiile
+	
+	op 0 : -> Int .
+	op s : Int -> Int . ***succ
+	op p : Int -> Int . ***predecesor
+	
+	op _+_ : Int Int -> Int [assoc comm prec 32] .
+	op _-_ : Int Int -> Int [assoc comm prec 33].
+	op _*_ : Int Int -> Int [assoc comm prec 30].
+	op _/_ : Int NzInt->Int [assoc comm prec 31].
+
+	vars N M : Int .
+
+	eq 0+M=M .
+	eq 0-M=-M .
+	eq 0*M=0 .
+	eq 0/M=0 .
+
+	eq s(N)+M=s(N+M) .
+	eq s(N)*M = N*M+M.
+	eq p(N)-M=p(N-M)
+	eq N*p(M)=M*p(N)
+
+
+
+endfm

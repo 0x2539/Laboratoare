@@ -1,0 +1,98 @@
+*** ex 1 a, b
+fmod PAIR { X :: TRIV, Y :: TRIV } is
+	sort Pair{X, Y} .
+
+	op [_,_] : X$Elt Y$Elt -> Pair{X, Y} .
+	op first : Pair{X, Y} -> X$Elt .
+	op second : Pair{X, Y} -> Y$Elt .
+	
+	var arg1 : X$Elt .
+	var arg2 : Y$Elt .
+
+	eq first([arg1, arg2]) = arg1 .
+	eq second([arg1, arg2]) = arg2 .
+
+endfm
+
+view TRIV-to-INT from TRIV to INT is
+	sort Elt to Int .
+endv
+
+fmod PAIR-INT is
+	protecting PAIR{TRIV-to-INT, TRIV-to-INT} .
+endfm
+
+red first([2, 3]) .
+red second([4, 5]) .
+**************************************************
+
+
+*** ex 1 c
+view PAIR-de-INT from TRIV to PAIR-INT is
+	sort Elt to Pair{TRIV-to-INT, TRIV-to-INT} .
+endv
+
+fmod LISTA-TRIV{X :: TRIV} is
+	sort ListaTriv{X} .
+	subsort X$Elt < ListaTriv{X} .
+
+	op nil : -> ListaTriv{X} .
+	op _ _ : ListaTriv{X} ListaTriv{X} -> ListaTriv{X} [assoc id: nil] .
+endfm
+
+fmod LISTA-PAIR is
+	protecting LISTA-TRIV{TRIV-to-INT} .
+	protecting LISTA-TRIV{PAIR-de-INT} .
+
+	op @first : ListaTriv{PAIR-de-INT} -> ListaTriv{TRIV-to-INT} .
+	op @second : ListaTriv{PAIR-de-INT} -> ListaTriv{TRIV-to-INT} .
+
+	vars LI : ListaTriv{PAIR-de-INT} .
+	vars EL : Pair{TRIV-to-INT, TRIV-to-INT} .
+
+	eq @first(nil) = nil .
+	eq @first(EL LI) = first(EL) @first(LI) .
+
+	eq @second(nil) = nil .
+	eq @second(EL LI) = second(EL) @second(LI) .
+endfm
+
+red @first([1, 2] [3, 4]) .
+red @second([1, 2] [3, 4]) .
+**************************************************
+
+
+*** ex 1 d
+view TRIV-to-STRING from TRIV to STRING is
+	sort Elt to String .
+endv
+
+fmod PAIR-COMPLEX is
+	protecting PAIR{TRIV-to-INT, TRIV-to-STRING} .
+endfm
+
+view PAIR-de-COMPLEX from TRIV to PAIR-COMPLEX is
+	sort Elt to Pair{TRIV-to-INT, TRIV-to-STRING} .
+endv
+
+fmod LISTA-COMPLEX is
+	protecting LISTA-TRIV{TRIV-to-INT} .
+	protecting LISTA-TRIV{TRIV-to-STRING} .
+	protecting LISTA-TRIV{PAIR-de-COMPLEX} .
+
+	op @@first : ListaTriv{PAIR-de-COMPLEX} -> ListaTriv{TRIV-to-INT} .
+	op @@second : ListaTriv{PAIR-de-COMPLEX} -> ListaTriv{TRIV-to-STRING} .
+
+	var EL : Pair{TRIV-to-INT, TRIV-to-STRING} .
+	var LI : ListaTriv{PAIR-de-COMPLEX} .
+
+	eq @@first(nil) = nil .
+	eq @@first(EL LI) = first(EL) @@first(LI) .
+
+	eq @@second(nil) = nil .
+	eq @@second(EL LI) = second(EL) @@second(LI) .
+endfm
+
+red @@first([1, "asd"] [2, "qwe"]) .
+red @@second([1, "asd"] [2, "qwe"]) .
+**************************************************

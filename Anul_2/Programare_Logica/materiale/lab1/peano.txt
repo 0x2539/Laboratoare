@@ -1,0 +1,28 @@
+fmod MYINT is
+sort Int .
+op 0 : -> Int .
+op s_ : Int -> Int .
+op p_ : Int -> Int .
+op _+_ : Int Int -> Int  [comm] .
+op _-_ : Int Int -> Int .
+op _*_ : Int Int -> Int .
+vars N M : Int .
+
+eq s ( N ) + M = s ( N + M ) .
+eq 0 + M = M .
+eq p s N = N .
+eq s p N = N .
+eq p( N ) + M = p( N + M ) .
+  
+eq N - 0 = N .
+eq N - s(M) = p( N - M ) .
+eq N - p(M) = s( N - M ) .
+  
+  
+  
+endfm
+
+red p p 0 + s 0 .
+red s s 0 + p 0 .
+red p p 0 - s 0 .
+red s s 0 - p 0 .

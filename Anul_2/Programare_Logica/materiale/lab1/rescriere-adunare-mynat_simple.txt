@@ -1,0 +1,14 @@
+fmod MYNAT-SIMPLE is
+  sort NAT . ***am definit o multime
+ 
+ ***declararea operatiilor
+  op 0:->NAT . ***0 apartine numerelor naturale
+  op s:NAT->NAT . ***asa declar o functie
+  op _+_:NAT NAT->NAT .
+ 
+  vars N M: NAT . ***declar 2 varianile din acea multime
+  
+  eq 0+M=M . ***declr equatiilor
+  eq s(N)+M=s(N+M) .
+endfm
+reduce s(s(0)) + s(0) .

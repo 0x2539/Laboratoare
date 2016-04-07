@@ -1,0 +1,17 @@
+fmod LIST-INT2 is
+protecting INT .
+sorts NList List .
+subsort Int < NList < List .
+op nil : -> List .
+op _ _ : Int List -> NList [id: nil] .
+endfm
+
+fmod LENGTH is
+protecting LIST-INT2 .
+op length : List -> Nat .
+var I : Int .
+var L : List .
+eq length(nil) = 0 .
+eq length(I L) = 1 + length(L) .
+endfm
+red length(1 2 3 4 5) .

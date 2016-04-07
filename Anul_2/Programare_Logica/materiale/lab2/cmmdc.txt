@@ -1,0 +1,9 @@
+fmod CMMMDC is
+  protecting INT .
+  op cmmdc : Int Int -> Int [comm] .
+  vars M N : Int .
+  ceq cmmdc(M, N) = cmmdc(M - N, N) if M > N . 
+  ceq cmmdc(M, N) = M if M == N .
+ endfm
+
+red cmmdc(5,3) .

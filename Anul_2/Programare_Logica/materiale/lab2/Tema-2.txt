@@ -1,0 +1,46 @@
+fmod DATA-CALENDARISTICA is 
+			including NAT .
+  
+sort Calendar .
+  
+op _/_/_ : Nat Nat Nat -> Calendar .
+op valid : Calendar -> Bool .
+op add : Nat Calendar -> Calendar .
+  
+vars Z L A X : Nat .
+
+ceq valid( Z / L / A ) = false if ( L > 11 ) or ( L == 0 ) . 
+ceq valid( Z / L / A ) = false if ((L == 1 ) or (L == 3 ) or (L == 5 ) or (L == 7 ) or (L == 9 ) or (L == 11 )) and (( Z > 31 ) or ( Z == 0 )) .
+ceq valid( Z / L / A ) = false if ((L == 4 ) or (L == 6 ) or (L == 8 ) or (L == 10 ) or (L == 12 )) and (( Z > 30 ) or ( Z == 0 )) .
+ceq valid( Z / L / A ) = false if (L == 2 ) and (( Z > 29 ) or ( Z == 0 )) .
+
+ceq valid( Z / L / A ) = true if ((L == 1 ) or (L == 3 ) or (L == 5 ) or (L == 7 ) or (L == 9 ) or (L == 11 )) and (( Z < 32 ) or ( Z > 0 )) .
+ceq valid( Z / L / A ) = true if ((L == 4 ) or (L == 6 ) or (L == 8 ) or (L == 10 ) or (L == 12 )) and (( Z < 31 ) or ( Z > 0 )) .
+ceq valid( Z / L / A ) = true if (L == 2 ) and (( Z < 29 ) or ( Z > 0 )) .
+
+ceq  add (X,Z / 2 / A ) = (Z + X) / 2 / A  if (( X + Z ) < 29) .
+ceq  add (X,Z / 2 / A ) = (Z + X) / 3 / A  if (( X + Z ) > 28) .
+ceq  add (X,Z / 12 / A ) = (Z + X) / 12 / A  if (( X + Z ) < 31) .
+ceq  add (X,Z / 12 / A ) = (Z + X) / 1 / A  if (( X + Z ) > 30) .
+  
+ceq add (X,Z / L / A ) = (Z + X) / L / A  if (( X + Z ) < 31) .
+ceq add (X,Z / L / A ) = (Z + X ) / (L + 1) / A  if ( X + Z ) > 31 and ((L == 1 ) or (L == 3 ) or (L == 5 ) or (L == 7 ) or (L == 9 ) or (L == 11 )).
+ceq add (X,Z / L / A ) = (Z + X ) / (L + 1) / A  if ( X + Z ) > 30 and ((L == 4 ) or (L == 6 ) or (L == 8 ) or (L == 10 )).
+
+endfm 
+
+reduce 15 / 28 / 12 .
+
+reduce valid ( 28 / 2 / 12 ) .
+reduce valid ( 0 / 28 / 12 ) .
+reduce valid ( 15 / 0 / 12 ) .
+reduce valid ( 15 / 11 / 12 ) .
+reduce valid ( 34 / 03 / 2016 ) .
+reduce valid ( 3 / 13 / 2016 ) .
+
+reduce add (29 , 4 / 5 / 2016 ) .
+reduce add (25 , 4 / 6 / 2016 ) .
+reduce add (20 , 4 / 2 / 2016 ) .
+reduce add (25 , 4 / 2 / 2016 ) .
+reduce add (26 , 4 / 12 / 2016 ) .
+reduce add (29 , 4 / 12 / 2016 ) .

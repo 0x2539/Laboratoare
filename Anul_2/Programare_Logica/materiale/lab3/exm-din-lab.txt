@@ -1,0 +1,12 @@
+fmod LIST-INT3 is
+protecting INT .
+sort List .
+subsort Int < List .
+op nil : -> List .
+op _ _ : List List -> List [assoc id: nil] . *** op spatiu concateneaa listele
+endfm
+
+*** [id : nil] izo cu vars N M : List .  eq N nil = N  . eq nil N = N .
+
+red 5 8  nil .
+red nil .

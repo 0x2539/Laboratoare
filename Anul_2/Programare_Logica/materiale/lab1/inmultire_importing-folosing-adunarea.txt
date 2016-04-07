@@ -1,0 +1,10 @@
+fmod MYNAT-SIMPLE* is
+	including MYNAT-SIMPLE .
+	
+	op mult : Nat Nat -> Nat .
+
+	vars M N : Nat .
+	
+	eq mult(0, M) = 0 .
+	eq mult(succ(N), M) = plus(mult(N, M), M) .
+endfm

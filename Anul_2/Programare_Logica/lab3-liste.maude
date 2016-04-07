@@ -1,0 +1,92 @@
+fmod LIST-INT2 is
+	protecting INT .
+	sorts NList List .
+	subsort Int < NList < List .
+	op nil : -> List .
+	op _ _ : Int List -> NList [id: nil] .
+
+
+endfm
+
+fmod IN is
+	protecting LIST-INT2 .
+	op in : Int List -> Bool .
+	op _inn_ : Int List -> Bool .
+
+	var A : Int .
+	var II : Int .
+	var II2 : Int .
+	var LL : List .
+	var LL2 : List .
+
+	eq in(A, nil) = false .
+	eq in(A, II) = A == II .
+	eq in(A, II LL) = in(A, LL) .
+
+	eq A inn II LL = in(A, II LL) .
+
+endfm
+
+
+fmod APPEND is
+	protecting LIST-INT2 .
+	op append : List List -> List .
+
+	var II : Int .
+	var II2 : Int .
+	var LL : List .
+	var LL2 : List .
+
+	eq append(nil, nil) = nil .
+	eq append(II2 LL2, nil) = II2 append(LL2, nil) .
+	eq append(nil, II2 LL2) = II2 append(nil, LL2) .
+	eq append(II LL, II2 LL2) = II append(LL, II2 LL2) .
+
+endfm
+
+
+fmod REVERSE is
+	protecting LIST-INT2 .
+	op rev : List -> List .
+
+	var II : Int .
+	var LL : List .
+
+	eq rev(nil) = nil .
+	eq rev(II LL) = rev(LL) II .
+
+endfm
+
+
+fmod SORTARE is
+	protecting LIST-INT2 .
+	op minim : List Int -> Int .
+	op remove : List Int -> List .
+	op sortare : List -> List .
+
+	var A : Int .
+	var II : Int .
+	var II2 : Int .
+	var LL : List .
+	var LL2 : List .
+
+	eq minim(nil, II2) = II2 .
+	eq minim(II LL, II2) = minim(LL, min(II, II2)) .
+
+	eq remove(nil, II2) = nil .
+	ceq remove(II LL, II2) = LL if II == II2 .
+	ceq remove(II LL, II2) = II remove(LL, II2) if II =/= II2 .
+
+	eq sortare(nil) = nil .
+	eq sortare(II LL) = minim(II LL, II) sortare(remove(II LL, minim(II LL, II))) .
+endfm
+
+
+fmod LENGTH is
+	protecting LIST-INT2 .
+	op length : List -> Nat .
+	var I : Int .
+	var L : List .
+	eq length(nil) = 0 .
+	eq length(I L) = 1 + length(L) .
+endfm

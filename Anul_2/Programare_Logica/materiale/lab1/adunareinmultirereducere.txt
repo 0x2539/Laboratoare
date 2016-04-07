@@ -1,0 +1,33 @@
+fmod MYNAT-SIMPLE is
+
+sort Nat .
+
+op 0 : -> Nat .
+
+op s : Nat -> Nat .
+
+op _+_ : Nat Nat -> Nat [assoc comm prec 33] .
+
+vars N M : Nat .
+
+eq 0 + M = M .
+
+eq s(N) + M = s(N + M) .
+  
+endfm
+
+fmod MYNAT-SIMPLE* is
+
+including MYNAT-SIMPLE .
+
+op _*_ : Nat Nat -> Nat [assoc comm prec 31].
+
+vars M N : Nat .
+
+eq 0 * M = 0 .
+
+eq s(N) * M = N * M + M .
+
+endfm
+
+reduce s(s(0)) + s(0) * s(0) .

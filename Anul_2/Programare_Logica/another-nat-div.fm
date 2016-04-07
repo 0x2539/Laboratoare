@@ -1,0 +1,33 @@
+(fmod ANOTHER-NAT-DIV is
+   sorts Nat NzNat .
+   subsort NzNat < Nat .
+   op 0 : -> Nat [ctor] .
+   op s : Nat -> NzNat [ctor] .
+   op _+_ : Nat Nat -> Nat .
+   op _*_ : Nat Nat -> Nat .
+   op _-_ : Nat Nat -> Nat .
+   op _<=_ : Nat Nat -> Bool .
+   op _>_ : Nat Nat -> Bool .
+   op _div_ : Nat NzNat -> Nat .
+   op _mod_ : Nat NzNat -> Nat .
+
+   vars M N : Nat .
+   var P : NzNat .
+
+   eq 0 + N = N .
+   eq s(M) + N = s(M + N) .
+   eq 0 * N = 0 .
+   eq s(M) * N = (M * N) + N .
+   eq 0 - N = 0 .
+   eq s(M) - 0 = s(M) .
+   eq s(M) - s(N) = M - N .
+   eq 0 <= N = true .
+   eq s(M) <= 0 = false .
+   eq s(M) <= s(N) = M <= N .
+   eq N > M = not (N <= M) .
+   ceq N div P = 0 if P > N .
+   ceq N div P = s((N - P) div P) if P <= N .
+   ceq N mod P = N if P > N .
+   ceq N mod P = (N - P) mod P if P <= N .
+ endfm)
+

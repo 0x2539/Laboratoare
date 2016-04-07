@@ -1,0 +1,10 @@
+fmod MYNAT-SIMPLE* is
+	including MYNAT-SIMPLE .
+	
+	op _*_ : Nat Nat -> Nat .
+
+	vars M N : Nat .
+	
+	eq 0*M= 0 .
+	eq s(N)*M = N*M+M.
+endfm

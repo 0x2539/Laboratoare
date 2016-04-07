@@ -1,0 +1,56 @@
+A2. (3 puncte) Scrieti un program "sortint" care se va lansa sub forma:
+     sortint   f
+ unde f este un fisier continand reprezentari interne de intregi si sorteaza
+ intregii din acest fisier. Se vor folosi doar functiile de la nivelul 
+ inferior de prelucrare a fisierelor si nu se vor folosi fisiere auxiliare.
+
+A6. (2 puncte) Scrieti un program care primeste ca argument in linia de
+ comanda un fisier si inlocuieste in el orice succesiune de caractere albe
+ (blank, tab, cap de linie) cu un singur blank. Se vor folosi doar functii de
+ la nivelul inferior de prelucrare a fisierelor, fara lseek si nu se vor folosi
+ fisiere auxiliare. Indicatie: fisierul va fi accesat prin doi descriptori,
+ unul in citire, altul in scriere.
+
+
+
+F1. (0.5 puncte) Scrieti un program care primeste ca argumente in linia de
+ comanda doi intregi si afisaza cmmdc al lor.
+
+F2. (0.5 puncte) Scrieti un program care primeste ca argument in linia de
+ comanda un intreg si verifica daca este prim.
+
+F3. (2.5 puncte) Scrieti un program care primeste ca argument in linia de
+ comanda un intreg si afisaza descompunerea sa in factori primi.
+
+F4. (1 punct) Scrieti un program care primeste ca argument in linia de
+ comanda un intreg si afisaza suma cifrelor sale.
+
+F5. (1 punct) Scrieti un program care primeste ca argument in linia de
+ comanda un intreg si afisaza imaginea sa in oglinda (ex: 1234 -> 4321).
+
+F11. (2 puncte) Scrieti un program care compara din punct de vedere
+ lexicografic continutul a doua fisiere (privite ca sir de caractere).
+ Specificatorii fisierelor sunti dati ca argumente in linia de comanda.
+
+F12. (1.5 puncte) Scrieti un program care inverseaza ordinea caracterelor
+ intr-un fisier al carui specificator este dat ca argument in linia de
+ comanda. Nu se vor folosi fisiere auxiliare.
+
+F14. (3 puncte) Scrieti un program care numara aparitiile unui string
+ intr-un fisier dat. Stringul si specificatorul fisierului sunt dati ca
+ argumente in linia de comanda.
+
+F18. (2 puncte) Scrieti un program care sorteaza caracterele dintr-un fisier
+ al carui specificator este dat ca argument in linia de comanda. Nu se vor
+ folosi fisiere auxiliare.
+
+
+
+D3. (4 puncte) Program care primeste ca argumente in linia de comanda un
+ fisier f si un director d si determina daca fisierul f se afla (ca nume)
+ in arborescenta cu originea in d; in caz afirmativ se va determina numarul
+ de aparitii.
+
+D4. (8 puncte) Program care primeste ca argumente in linia de comanda doua
+ directoare d1 si d2 si determina fisierele care apar (ca nume + cale)
+ intr-o arborescenta si nu apar in cealalta.

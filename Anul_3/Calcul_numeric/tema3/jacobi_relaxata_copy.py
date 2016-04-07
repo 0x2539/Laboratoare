@@ -60,7 +60,7 @@ def main_loop(matrix, iteratii, norma_infinit, b_array):
 	for k in range(1, p + 1):
 		sigma = (l / p) * Decimal(k)
 		# sigma = ((2.0 * k) / (p*t))
-		print 'k: %s, sigma %s' % (k, sigma)
+		# print 'k: %s, sigma %s' % (k, matrix_utils.res[k-1])
 
 		B = matrix_utils.get_matrix(m, m, Decimal(0))
 		temp_b = [Decimal(0) for i in range(0, m)]

@@ -1,0 +1,251 @@
+*****ex1a,b
+
+fmod PAIR {X :: TRIV , Y :: TRIV} is
+sort Pair {X,Y} .
+  op [_,_]: X$Elt Y$Elt -> Pair{X,Y} .
+  op first : Pair{X,Y} -> X$Elt .
+   op second : Pair{X,Y} -> Y$Elt .
+  
+  var ARG1 : X$Elt .
+  var ARG2 : Y$Elt .
+  
+  eq first ([ ARG1 , ARG2 ]) = ARG1 .
+  eq second ([ ARG1 , ARG2 ]) = ARG2 .
+  
+endfm
+
+fmod INTPAIR is protecting PAIR {Int,Int} . ***nume de view
+  endfm
+
+reduce [ 2 , 3 ] .
+reduce first ([ 7 , 8 ]) .
+***nu se poate view la modul param, Triv e teorie
+fmod LIST{X :: TRIV} is
+sort List{X} .
+subsort X$Elt < List{X} .
+op nil : -> List{X} .
+op _ _ : List{X} List{X} -> List{X} [assoc id: nil] .
+endfm
+
+view TrivToPair from TRIV to INTPAIR  is
+  sort Elt  to Pair{Int,Int} .
+  endv
+  
+  
+ ***vrem sa facem perechi de perechi,instantiem astfel
+  fmod PAIRPAIR is
+    protecting PAIR { TrivToPair, TrivToPair} .
+    endfm
+  
+  reduce first ([[2,1],[3,4]]) .
+
+
+**************************************************************************
+ 
+  ***subct 3 de la ex 1.traducem op
+  
+  fmod LISTPAIR is
+    protecting LIST{TrivToPair} .
+    endfm
+  
+  reduce [1,2] [3,4] .
+  
+  fth MYTHEORY is
+    sorts Elt  Comp . 
+    op f_ : Elt -> Comp .
+    op s_ : Elt -> Comp .
+    endfth
+
+    view MYVIEW from MYTHEORY to INTPAIR is
+          sort Elt to Pair { Int , Int } .
+          sort Comp to Int .
+          op f_ to first .
+          op s_ to second .          
+          endv
+
+
+*******************************ex1.3 complet
+fmod PAIR {X :: TRIV , Y :: TRIV} is
+sort Pair {X,Y} .
+  op [_,_]: X$Elt Y$Elt -> Pair{X,Y} .
+  op first : Pair{X,Y} -> X$Elt .
+   op second : Pair{X,Y} -> Y$Elt .
+  
+  var ARG1 : X$Elt .
+  var ARG2 : Y$Elt .
+  
+  eq first ([ ARG1 , ARG2 ]) = ARG1 .
+  eq second ([ ARG1 , ARG2 ]) = ARG2 .
+  
+endfm
+
+fmod INTPAIR is protecting PAIR {Int,Int} . ***nume de view
+  endfm
+
+reduce [ 2 , 3 ] .
+reduce first ([ 7 , 8 ]) .
+***nu se poate view la modul param, Triv e teorie
+
+
+view TrivToPair from TRIV to INTPAIR  is
+  sort Elt  to Pair{Int,Int} .
+  endv
+  
+  
+ ***vrem sa facem perechi de perechi,instantiem astfel
+  fmod PAIRPAIR is
+    protecting PAIR { TrivToPair, TrivToPair} .
+    endfm
+  
+  reduce first ([[2,1],[3,4]]) .
+  
+  
+  ***subct 3 de la ex 1.traducem op
+  
+  fmod LISTPAIR is
+    protecting LIST{TrivToPair} .
+    endfm
+  
+  reduce [1,2] [3,4] .
+  
+  fth MYTHEORY is
+    sorts Elt  Comp . 
+    op f_ : Elt -> Comp .
+    op s_ : Elt -> Comp .
+    endfth
+
+fmod LIST{X :: MYTHEORY} is
+sort List{X}   .
+subsort X$Comp < X$Elt . 
+subsort X$Elt < List{X} .
+op nil : -> List{X} .
+op _ _ : List{X} List{X} -> List{X} [assoc id: nil] . ***am bagat @ dupa ce a scris teoria mea
+op @first_ : List{X} -> List{X} .
+op @second_ : List{X} -> List{X} .
+var L : List{X} .
+vars P Q : X$Elt .
+  
+  eq @first(nil) = nil .
+  eq @first(P L) = f(P) @first L .
+   eq @second(nil) = nil .
+  eq @second(P L) = s(P) @second L .
+  
+endfm
+    
+
+    view MYVIEW from MYTHEORY to INTPAIR is
+          sort Elt to Pair { Int , Int } .
+          sort Comp to Int .
+          op f_ to first .
+          op s_ to second .          
+          endv
+      
+    fmod PAIRLISt is
+    protecting LIST {MYVIEW} .
+    endfm
+      
+      reduce @first([1,2] [3,4]) . ***trebuie sa dea primul element din fiecare lista
+
+*******************************************************************************************
+ex2
+
+fth TOSET is
+    
+  	protecting BOOL .
+  	sort Elt .
+  	op _<_ : Elt Elt -> Bool .
+  
+endfth
+  
+fmod PAIR {X :: TOSET , Y :: TOSET} is
+
+  sort Pair {X,Y} .
+  op [_,_]: X$Elt Y$Elt -> Pair{X,Y} .
+  op first : Pair{X,Y} -> X$Elt .
+  op second : Pair{X,Y} -> Y$Elt .
+  op _lex_ : Pair{X,Y} Pair{X,Y} -> Bool .
+  
+  var ARG1 : X$Elt .
+  var ARG2 : Y$Elt .
+  var A C : X$Elt .
+  var B D : Y$Elt .
+  var P1 P2 : Pair{X,Y} .
+  
+  eq first ([ ARG1 , ARG2 ]) = ARG1 .
+  eq second ([ ARG1 , ARG2 ]) = ARG2 .
+  eq [A,B] lex [C,D] = A < C or (A == C  and ( B < D or B == D) ) .
+  
+  
+endfm
+  
+ view TosetToInt from TOSET to INT  is***Elt e o mult oarecare
+ sort Elt  to Int . ***am tradus din multimea elem ordonate(Toset) in INT
+ op < to < .
+ endv
+  
+ fmod PAIR_INT is ***ne intoarcem in mod param..si aici lucram prin intermediul dic
+ protecting PAIR{TosetToInt , TosetToInt} .
+ endfm
+   
+   reduce [3,5] lex [4,5] .
+  
+
+
+*******************************************************************************
+ex 3
+
+fth TOSET is
+    
+  	protecting BOOL .
+  	sort Elt .
+  	op _<_ : Elt Elt -> Bool .
+  	op const :  -> Elt . ***cst pt Toset
+  
+endfth
+
+fmod SET{ X :: TRIV } is ***am def un modul de multimi oarecare
+  sort Set{X} .
+  subsort X$Elt < Set{X} .
+  var A : Set{X} .
+  op vida : -> Set{X} .
+  op _ _ : Set{X} Set{X} -> Set{X} [assoc comm id: vida] .
+  
+  eq A A = A . ***am rez probl rep
+  
+  endfm
+  
+***subpct 2
+
+  
+view Toset from TRIV to TOSET is
+  sort Elt to Elt .
+endv
+  
+  ***subpct 3
+ view TosetToInt from TOSET to INT  is***Elt e o mult oarecare
+ sort Elt  to Int . ***am tradus din multimea elem ordonate(Toset) in INT
+ op < to < .
+ op const to 0 .
+ endv
+ 
+fmod SET-MAX{T :: TOSET} is    ***modul param cu numele T
+protecting SET{Toset}{T} .
+  
+  op maxim : Set{Toset}{T} -> T$Elt .
+var Z : T$ELt . ***elemente din teorie
+vars N M : Set{Toset}{T} . ***astea sunt multimi
+  
+  
+  eq maxim(vida) = const . ***op const e def in teorie toset
+  eq maxim(Z) = Z .
+  eq maxim( N M )  =  if maxim( N ) < maxim( M )  then maxim( M ) else maxim( N ) fi . ***e < din toset
+  
+  ***operator terner...if_then_else fi
+ 
+
+endfm
+   
+   fmod SET-MAX-INT is ***instantierea..dupa ce am dat traducerea
+     protecting SET-MAX{TosetToInt} .
+     endfm
+
